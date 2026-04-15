@@ -62,7 +62,12 @@ export default function Admin() {
       );
       if (!privyWallet) throw new Error("Wallet not accessible");
 
-      const walletClient = await privyWallet.getWalletClient();
+      const provider = await (privyWallet as any).getEthereumProvider();
+      const { createWalletClient, custom } = await import("viem");
+      const walletClient = createWalletClient({
+        account: walletAddress as `0x${string}`,
+        transport: custom(provider),
+      });
       const signature = await walletClient.signMessage({
         account: walletAddress as `0x${string}`,
         message,

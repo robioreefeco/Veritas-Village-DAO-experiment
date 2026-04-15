@@ -109,14 +109,19 @@ export default function Vote() {
         const privyWallet = wallets.find((w) => w.address.toLowerCase() === walletAddress.toLowerCase());
         if (!privyWallet) throw new Error("Wallet not found");
 
-        const walletClient = await privyWallet.getWalletClient();
+        const provider = await (privyWallet as any).getEthereumProvider();
+        const { createWalletClient, custom } = await import("viem");
         const addr = walletAddress as `0x${string}`;
+        const wc = createWalletClient({
+          account: addr,
+          transport: custom(provider),
+        });
 
         // Minimal ethers-compatible signer adapter for Vocdoni SDK
         const signerAdapter = {
           getAddress: () => Promise.resolve(walletAddress),
           signMessage: (msg: string | Uint8Array) =>
-            walletClient.signMessage({
+            wc.signMessage({
               account: addr,
               message: typeof msg === "string" ? msg : { raw: msg as Uint8Array },
             }),
