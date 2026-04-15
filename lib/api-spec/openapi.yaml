@@ -3,20 +3,25 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Veritas Villages DAO MultiChain Voting API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: proposals
+    description: DAO Proposals
+  - name: votes
+    description: Vote records
+  - name: stats
+    description: Dashboard statistics
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +29,139 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /proposals:
+    get:
+      operationId: listProposals
+      tags: [proposals]
+      summary: List all proposals
+      parameters:
+        - name: chain
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [celo, rsk, all]
+      responses:
+        "200":
+          description: List of proposals
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Proposal"
+    post:
+      operationId: createProposal
+      tags: [proposals]
+      summary: Create a new proposal
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateProposalBody"
+      responses:
+        "201":
+          description: Created proposal
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Proposal"
+
+  /proposals/{id}:
+    get:
+      operationId: getProposal
+      tags: [proposals]
+      summary: Get a proposal by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Proposal
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Proposal"
+        "404":
+          description: Not found
+
+  /proposals/{id}/vote:
+    post:
+      operationId: castVote
+      tags: [votes]
+      summary: Record a vote on a proposal
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CastVoteBody"
+      responses:
+        "201":
+          description: Vote recorded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VoteRecord"
+
+  /proposals/{id}/results:
+    get:
+      operationId: getProposalResults
+      tags: [votes]
+      summary: Get tally results for a proposal
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Vote results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProposalResults"
+
+  /stats/dashboard:
+    get:
+      operationId: getDashboardStats
+      tags: [stats]
+      summary: Get DAO dashboard summary
+      responses:
+        "200":
+          description: Dashboard stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardStats"
+
+  /stats/chain-activity:
+    get:
+      operationId: getChainActivity
+      tags: [stats]
+      summary: Get recent chain activity
+      responses:
+        "200":
+          description: Chain activity
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ChainActivity"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +172,212 @@ components:
       required:
         - status
 
+    Proposal:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        chain:
+          type: string
+          enum: [celo, rsk]
+        census:
+          type: string
+          enum: [rbtc, cusd]
+        status:
+          type: string
+          enum: [active, ended, pending]
+        electionId:
+          type: string
+          nullable: true
+        rbtcBalance:
+          type: string
+          nullable: true
+        yesVotes:
+          type: integer
+        noVotes:
+          type: integer
+        abstainVotes:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        endsAt:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - id
+        - title
+        - description
+        - chain
+        - census
+        - status
+        - yesVotes
+        - noVotes
+        - abstainVotes
+        - createdAt
+
+    CreateProposalBody:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        chain:
+          type: string
+          enum: [celo, rsk]
+        census:
+          type: string
+          enum: [rbtc, cusd]
+        endsAt:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - title
+        - description
+        - chain
+        - census
+
+    VoteRecord:
+      type: object
+      properties:
+        id:
+          type: integer
+        proposalId:
+          type: integer
+        voterAddress:
+          type: string
+        chain:
+          type: string
+        choice:
+          type: string
+          enum: [yes, no, abstain]
+        txHash:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - proposalId
+        - voterAddress
+        - chain
+        - choice
+        - createdAt
+
+    CastVoteBody:
+      type: object
+      properties:
+        voterAddress:
+          type: string
+        choice:
+          type: string
+          enum: [yes, no, abstain]
+        chain:
+          type: string
+        txHash:
+          type: string
+          nullable: true
+      required:
+        - voterAddress
+        - choice
+        - chain
+
+    ProposalResults:
+      type: object
+      properties:
+        proposalId:
+          type: integer
+        yes:
+          type: integer
+        no:
+          type: integer
+        abstain:
+          type: integer
+        total:
+          type: integer
+        byChain:
+          type: object
+          properties:
+            celo:
+              $ref: "#/components/schemas/ChainTally"
+            rsk:
+              $ref: "#/components/schemas/ChainTally"
+          required:
+            - celo
+            - rsk
+      required:
+        - proposalId
+        - yes
+        - no
+        - abstain
+        - total
+        - byChain
+
+    ChainTally:
+      type: object
+      properties:
+        yes:
+          type: integer
+        no:
+          type: integer
+        abstain:
+          type: integer
+      required:
+        - yes
+        - no
+        - abstain
+
+    DashboardStats:
+      type: object
+      properties:
+        totalProposals:
+          type: integer
+        activeProposals:
+          type: integer
+        totalVotes:
+          type: integer
+        celoVotes:
+          type: integer
+        rskVotes:
+          type: integer
+        uniqueVoters:
+          type: integer
+      required:
+        - totalProposals
+        - activeProposals
+        - totalVotes
+        - celoVotes
+        - rskVotes
+        - uniqueVoters
+
+    ChainActivity:
+      type: object
+      properties:
+        chain:
+          type: string
+        action:
+          type: string
+        address:
+          type: string
+        proposalTitle:
+          type: string
+        txHash:
+          type: string
+          nullable: true
+        timestamp:
+          type: string
+          format: date-time
+      required:
+        - chain
+        - action
+        - address
+        - proposalTitle
+        - timestamp

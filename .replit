@@ -1,4 +1,4 @@
-modules = ["nodejs-24"]
+modules = ["nodejs-24", "postgresql-16"]
 
 [deployment]
 router = "application"
@@ -26,3 +26,19 @@ externalPort = 8080
 [[ports]]
 localPort = 8081
 externalPort = 80
+
+[[ports]]
+localPort = 19558
+externalPort = 3000
+
+[userenv]
+
+[userenv.shared]
+VITE_CELO_RPC = "https://alfajores-forno.celo-testnet.org"
+VITE_RSK_RPC = "https://public-node.testnet.rsk.co"
+VITE_VOCDONI_ENV = "dev"
+VITE_CELO_CHAIN_ID = "44787"
+VITE_RSK_CHAIN_ID = "31"
+
+[nix]
+channel = "stable-25_05"
