@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
+import { nodePolyfills } from "vite-plugin-node-polyfills";
 
 const rawPort = process.env.PORT;
 
@@ -33,6 +34,7 @@ export default defineConfig({
     'import.meta.env.VITE_PRIVY_APP_ID': JSON.stringify(process.env.PRIVY_APP_ID || process.env.VITE_PRIVY_APP_ID || 'demo'),
   },
   plugins: [
+    nodePolyfills({ include: ["buffer", "util", "stream", "crypto"] }),
     react(),
     tailwindcss(),
     runtimeErrorOverlay(),

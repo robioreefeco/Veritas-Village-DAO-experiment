@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { db, proposalsTable, votesTable } from "@workspace/db";
 import { eq, and, sql } from "drizzle-orm";
+import { createVocdoniElection } from "../lib/vocdoni";
 import {
   CreateProposalBody,
   CastVoteBody,
@@ -46,6 +47,16 @@ router.post("/proposals", async (req, res) => {
       return;
     }
     const { title, description, chain, census, endsAt } = parsed.data;
+    // Try to create a real Vocdoni election, fall back to mock ID if unavailable
+    let electionId = `election-${Date.now()}`;
+    try {
+      const endDate = endsAt ? new Date(endsAt) : new Date(Date.now() + 7 * 86400 * 1000);
+      electionId = await createVocdoniElection({ title, description, endsAt: endDate });
+      req.log.info({ electionId }, "Vocdoni election created");
+    } catch (err) {
+      req.log.warn({ err }, "Vocdoni election creation failed, using mock ID");
+    }
+
     const [proposal] = await db
       .insert(proposalsTable)
       .values({
@@ -55,7 +66,7 @@ router.post("/proposals", async (req, res) => {
         census: census as "rbtc" | "cusd",
         endsAt: endsAt ? new Date(endsAt) : null,
         status: "active",
-        electionId: `election-${Date.now()}`,
+        electionId,
       })
       .returning();
     res.status(201).json(proposal);

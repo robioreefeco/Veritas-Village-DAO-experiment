@@ -76,7 +76,9 @@
   },
   "dependencies": {
     "@privy-io/react-auth": "^3.21.2",
+    "@vocdoni/sdk": "^0.9.3",
     "viem": "^2.47.17",
+    "vite-plugin-node-polyfills": "^0.26.0",
     "wagmi": "^3.6.1"
   }
 }
