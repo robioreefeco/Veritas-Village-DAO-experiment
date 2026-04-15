@@ -62,6 +62,7 @@ export async function createVocdoniElection(opts: {
     census,
     startDate: new Date(),
     endDate: opts.endsAt,
+    maxCensusSize: 1000,
     voteType: { maxVoteOverwrites: 1 },
   });
 

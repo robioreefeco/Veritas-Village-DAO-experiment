@@ -52,10 +52,11 @@ function App() {
     <PrivyProvider 
       appId={appId}
       config={{ 
-        supportedChains: [celoAlfajores, rskTestnet],
+        defaultChain: rskTestnet,
+        supportedChains: [rskTestnet, celoAlfajores],
         appearance: {
           theme: 'dark',
-          accentColor: '#ffffff'
+          accentColor: '#F7931A'
         }
       }}
     >

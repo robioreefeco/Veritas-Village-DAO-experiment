@@ -63,6 +63,13 @@ export default function Admin() {
       if (!privyWallet) throw new Error("Wallet not accessible");
 
       const provider = await (privyWallet as any).getEthereumProvider();
+
+      // Switch to the correct chain so Privy shows RSK or Celo — not Base
+      const targetChainId = formData.chain === "celo" ? "0xAEF3" : "0x1f"; // Celo Alfajores 44787 | RSK Testnet 31
+      try {
+        await provider.request({ method: "wallet_switchEthereumChain", params: [{ chainId: targetChainId }] });
+      } catch (_) { /* wallet may already be on the right chain */ }
+
       const { createWalletClient, custom } = await import("viem");
       const walletClient = createWalletClient({
         account: walletAddress as `0x${string}`,

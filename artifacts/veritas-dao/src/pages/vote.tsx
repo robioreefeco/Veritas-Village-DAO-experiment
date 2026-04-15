@@ -110,6 +110,13 @@ export default function Vote() {
         if (!privyWallet) throw new Error("Wallet not found");
 
         const provider = await (privyWallet as any).getEthereumProvider();
+
+        // Switch to the proposal's chain so Privy shows RSK or Celo — not Base
+        const targetChainId = proposal.chain === "celo" ? "0xAEF3" : "0x1f";
+        try {
+          await provider.request({ method: "wallet_switchEthereumChain", params: [{ chainId: targetChainId }] });
+        } catch (_) { /* already on the right chain or unsupported */ }
+
         const { createWalletClient, custom } = await import("viem");
         const addr = walletAddress as `0x${string}`;
         const wc = createWalletClient({
