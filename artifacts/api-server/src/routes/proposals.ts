@@ -46,7 +46,23 @@ router.post("/proposals", async (req, res) => {
       res.status(400).json({ error: "Invalid body", issues: parsed.error.issues });
       return;
     }
-    const { title, description, chain, census, endsAt } = parsed.data;
+    const { title, description, chain, census, endsAt, creatorAddress, creatorSignature } = parsed.data;
+
+    // Verify the EIP-191 signature — proves the sender owns creatorAddress
+    const expectedMessage = `Veritas Villages DAO: Creating proposal "${title}" on ${chain}`;
+    let recoveredAddress: string;
+    try {
+      const { ethers } = await import("ethers");
+      recoveredAddress = ethers.utils.verifyMessage(expectedMessage, creatorSignature);
+    } catch {
+      res.status(400).json({ error: "Invalid signature" });
+      return;
+    }
+    if (recoveredAddress.toLowerCase() !== creatorAddress.toLowerCase()) {
+      res.status(403).json({ error: "Signature does not match creatorAddress" });
+      return;
+    }
+
     // Try to create a real Vocdoni election, fall back to mock ID if unavailable
     let electionId = `election-${Date.now()}`;
     try {
@@ -67,6 +83,7 @@ router.post("/proposals", async (req, res) => {
         endsAt: endsAt ? new Date(endsAt) : null,
         status: "active",
         electionId,
+        creatorAddress: creatorAddress.toLowerCase(),
       })
       .returning();
     res.status(201).json(proposal);

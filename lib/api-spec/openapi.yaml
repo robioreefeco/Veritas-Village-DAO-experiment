@@ -238,11 +238,19 @@ components:
           type: string
           format: date-time
           nullable: true
+        creatorAddress:
+          type: string
+          description: Wallet address of the proposal creator (0x...)
+        creatorSignature:
+          type: string
+          description: EIP-191 signature over the proposal intent message
       required:
         - title
         - description
         - chain
         - census
+        - creatorAddress
+        - creatorSignature
 
     VoteRecord:
       type: object

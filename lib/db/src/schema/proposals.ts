@@ -15,6 +15,7 @@ export const proposalsTable = pgTable("proposals", {
   census: censusEnum("census").notNull().default("cusd"),
   status: statusEnum("status").notNull().default("active"),
   electionId: text("election_id"),
+  creatorAddress: text("creator_address"),
   rbtcBalance: text("rbtc_balance"),
   yesVotes: integer("yes_votes").notNull().default(0),
   noVotes: integer("no_votes").notNull().default(0),

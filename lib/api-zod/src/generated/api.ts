@@ -29,6 +29,7 @@ export const ListProposalsResponseItem = zod.object({
   census: zod.enum(["rbtc", "cusd"]),
   status: zod.enum(["active", "ended", "pending"]),
   electionId: zod.string().nullish(),
+  creatorAddress: zod.string().nullish(),
   rbtcBalance: zod.string().nullish(),
   yesVotes: zod.number(),
   noVotes: zod.number(),
@@ -47,6 +48,8 @@ export const CreateProposalBody = zod.object({
   chain: zod.enum(["celo", "rsk"]),
   census: zod.enum(["rbtc", "cusd"]),
   endsAt: zod.coerce.date().nullish(),
+  creatorAddress: zod.string().regex(/^0x[0-9a-fA-F]{40}$/),
+  creatorSignature: zod.string().min(10),
 });
 
 /**
@@ -64,6 +67,7 @@ export const GetProposalResponse = zod.object({
   census: zod.enum(["rbtc", "cusd"]),
   status: zod.enum(["active", "ended", "pending"]),
   electionId: zod.string().nullish(),
+  creatorAddress: zod.string().nullish(),
   rbtcBalance: zod.string().nullish(),
   yesVotes: zod.number(),
   noVotes: zod.number(),
