@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Clock, Info, ShieldAlert, Vote as VoteIcon } from "lucide-react";
+import { ArrowLeft, Clock, Info, ShieldAlert, Vote as VoteIcon, ExternalLink } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, CartesianGrid } from "recharts";
 
 export default function ProposalDetail() {
@@ -96,6 +96,31 @@ export default function ProposalDetail() {
                 </div>
               </div>
             </div>
+
+            {proposal.anchorTxHash && (() => {
+              const explorerBase = proposal.chain === 'celo'
+                ? 'https://alfajores.celoscan.io/tx/'
+                : 'https://explorer.testnet.rsk.co/tx/';
+              return (
+                <a
+                  href={`${explorerBase}${proposal.anchorTxHash}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-4 flex items-center justify-between p-4 border border-[#F7931A]/30 bg-[#F7931A]/5 hover:bg-[#F7931A]/10 transition-colors group"
+                >
+                  <div>
+                    <div className="text-xs font-mono text-[#F7931A]/70 uppercase tracking-wider mb-1">
+                      On-Chain Anchor TX · {proposal.chain === 'celo' ? 'Celo Alfajores' : 'RSK Testnet'}
+                    </div>
+                    <div className="font-bold font-mono text-sm text-[#F7931A] break-all">
+                      {proposal.anchorTxHash.slice(0, 18)}…{proposal.anchorTxHash.slice(-8)}
+                    </div>
+                  </div>
+                  <ExternalLink className="h-4 w-4 text-[#F7931A]/60 group-hover:text-[#F7931A] shrink-0 ml-4 transition-colors" />
+                </a>
+              );
+            })()}
+
             <div className="flex items-start gap-3 p-4 border border-blue-500/20 bg-blue-500/5 text-blue-400 mt-4">
               <ShieldAlert className="h-5 w-5 shrink-0 mt-0.5" />
               <div className="text-sm">

@@ -46,7 +46,7 @@ router.post("/proposals", async (req, res) => {
       res.status(400).json({ error: "Invalid body", issues: parsed.error.issues });
       return;
     }
-    const { title, description, chain, census, endsAt, creatorAddress, creatorSignature } = parsed.data;
+    const { title, description, chain, census, endsAt, creatorAddress, creatorSignature, anchorTxHash } = parsed.data;
 
     // Verify the EIP-191 signature — proves the sender owns creatorAddress
     const expectedMessage = `Veritas Villages DAO: Creating proposal "${title}" on ${chain}`;
@@ -83,6 +83,7 @@ router.post("/proposals", async (req, res) => {
         endsAt: endsAt ? new Date(endsAt) : null,
         status: "active",
         electionId,
+        anchorTxHash: anchorTxHash ?? null,
         creatorAddress: creatorAddress.toLowerCase(),
       })
       .returning();

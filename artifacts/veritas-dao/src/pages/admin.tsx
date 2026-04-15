@@ -82,7 +82,27 @@ export default function Admin() {
 
       setSignedTitle(formData.title);
 
-      // Step 2: Submit the proposal with address + signature
+      // Step 2: Anchor on RSK / Celo — send a 0-value tx with proposal data as calldata
+      let anchorTxHash: string | null = null;
+      try {
+        const { toHex, defineChain } = await import("viem");
+        const targetChain = formData.chain === "celo"
+          ? defineChain({ id: 44787, name: "Celo Alfajores", nativeCurrency: { name: "CELO", symbol: "CELO", decimals: 18 }, rpcUrls: { default: { http: ["https://alfajores-forno.celo-testnet.org"] } } })
+          : defineChain({ id: 31, name: "RSK Testnet", nativeCurrency: { name: "rBTC", symbol: "rBTC", decimals: 18 }, rpcUrls: { default: { http: ["https://public-node.testnet.rsk.co"] } } });
+
+        const calldata = toHex(`VeritasDAO:${formData.title}:${formData.chain}:${walletAddress}`);
+        anchorTxHash = await walletClient.sendTransaction({
+          account: walletAddress as `0x${string}`,
+          to: walletAddress as `0x${string}`,
+          value: 0n,
+          data: calldata,
+          chain: targetChain,
+        });
+      } catch (txErr) {
+        console.warn("On-chain anchor failed, continuing without TX hash:", txErr);
+      }
+
+      // Step 3: Submit the proposal with address + signature + anchor TX
       const endsAt = new Date();
       endsAt.setDate(endsAt.getDate() + parseInt(formData.durationDays, 10));
 
@@ -95,6 +115,7 @@ export default function Admin() {
           endsAt: endsAt.toISOString(),
           creatorAddress: walletAddress,
           creatorSignature: signature,
+          anchorTxHash,
         },
       });
 
@@ -258,11 +279,15 @@ export default function Admin() {
                 <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] border ${signedTitle ? "border-green-400 text-green-400" : "border-white/20"}`}>
                   {signedTitle ? "✓" : "2"}
                 </span>
-                Sign proposal intent with wallet
+                Sign proposal intent (EIP-191)
               </div>
               <div className="flex items-center gap-2">
                 <span className="w-4 h-4 rounded-full flex items-center justify-center text-[9px] border border-white/20">3</span>
-                Create Vocdoni election + store on-chain
+                Anchor TX on {formData.chain === "celo" ? "Celo Alfajores" : "RSK Testnet"} → real TX hash
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-4 h-4 rounded-full flex items-center justify-center text-[9px] border border-white/20">4</span>
+                Create Vocdoni election + save proposal
               </div>
             </div>
 
