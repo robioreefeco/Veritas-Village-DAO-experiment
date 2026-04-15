@@ -54,7 +54,7 @@ export async function createVocdoniElection(opts: {
   const cspUri = getBackendUrl();
   const cspPubKey = getCspPublicKey();
 
-  const census = new CspCensus(cspUri, cspPubKey);
+  const census = new CspCensus(cspPubKey, cspUri);
 
   const election = Election.from({
     title: opts.title,

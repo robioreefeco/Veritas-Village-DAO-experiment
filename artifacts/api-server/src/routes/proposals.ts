@@ -152,11 +152,16 @@ router.post("/proposals/:id/vote", async (req, res) => {
       })
       .returning();
 
-    const colMap = { yes: proposalsTable.yesVotes, no: proposalsTable.noVotes, abstain: proposalsTable.abstainVotes };
-    const col = colMap[choice as keyof typeof colMap];
+    const voteIncrement =
+      choice === "yes"
+        ? { yesVotes: sql`${proposalsTable.yesVotes} + 1` }
+        : choice === "no"
+        ? { noVotes: sql`${proposalsTable.noVotes} + 1` }
+        : { abstainVotes: sql`${proposalsTable.abstainVotes} + 1` };
+
     await db
       .update(proposalsTable)
-      .set({ [col.name]: sql`${col} + 1` })
+      .set(voteIncrement)
       .where(eq(proposalsTable.id, proposalId));
 
     res.status(201).json(vote);
