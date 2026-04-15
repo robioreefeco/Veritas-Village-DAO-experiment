@@ -21,26 +21,29 @@ function PoweredBy() {
   return (
     <div className="px-4 py-4 border-t border-white/10">
       <p className="text-[9px] uppercase tracking-widest text-white/30 mb-3 font-mono">Powered by</p>
-      <div className="flex items-center gap-3">
-        <a href="https://vocdoni.io" target="_blank" rel="noreferrer" title="Vocdoni">
+      <div className="flex items-center gap-4">
+        <a href="https://vocdoni.io" target="_blank" rel="noreferrer" title="Vocdoni" className="opacity-40 hover:opacity-80 transition-opacity">
           <img
             src={`${BASE}/vocdoni-logo.png`}
             alt="Vocdoni"
-            className="powered-by-logo h-5 w-5 object-contain"
+            className="h-6 w-6 object-contain"
+            style={{ filter: "invert(1)" }}
           />
         </a>
-        <a href="https://rootstock.io" target="_blank" rel="noreferrer" title="Rootstock">
+        <a href="https://rootstock.io" target="_blank" rel="noreferrer" title="Rootstock" className="opacity-40 hover:opacity-80 transition-opacity">
           <img
             src={`${BASE}/rootstock-logo.png`}
             alt="Rootstock"
-            className="powered-by-logo h-5 w-5 object-contain"
+            className="h-6 w-6 object-contain"
+            style={{ filter: "invert(1)" }}
           />
         </a>
-        <a href="https://celo.org" target="_blank" rel="noreferrer" title="Celo">
+        <a href="https://celo.org" target="_blank" rel="noreferrer" title="Celo" className="opacity-40 hover:opacity-80 transition-opacity">
           <img
             src={`${BASE}/celo-logo.png`}
             alt="Celo"
-            className="powered-by-logo h-4 w-10 object-contain"
+            className="h-4 w-14 object-contain"
+            style={{ filter: "invert(1)" }}
           />
         </a>
       </div>
