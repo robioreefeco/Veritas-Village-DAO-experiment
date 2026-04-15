@@ -45,11 +45,8 @@ export async function createVocdoniElection(opts: {
 
   const client = new VocdoniSDKClient({ env, wallet });
 
-  try {
-    await client.createAccountInfo({});
-  } catch (_) {
-    // Account may already exist
-  }
+  // createAccount() fetches DEV faucet tokens automatically and is a no-op if already registered
+  await client.createAccount();
 
   const cspUri = getBackendUrl();
   const cspPubKey = getCspPublicKey();
