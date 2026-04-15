@@ -117,14 +117,19 @@
   --input: 216 34% 17%;
   --ring: 216 34% 17%;
   
-  --chart-1: 220 70% 50%;
-  --chart-2: 160 60% 45%;
-  --chart-3: 30 80% 55%;
-  --chart-4: 280 65% 60%;
+  --chart-1: 36 100% 50%;
+  --chart-2: 148 55% 28%;
+  --chart-3: 220 90% 40%;
+  --chart-4: 153 60% 53%;
   --chart-5: 340 75% 55%;
 
-  --celo: 153 60% 53%; /* Celo green */
-  --rsk: 36 100% 50%; /* RSK/BTC orange */
+  --celo: 153 60% 53%;
+  --rsk: 36 100% 50%;
+
+  /* Veritas RegenFi design tokens */
+  --terra: #2D5A3A;
+  --btc-gold: #F7931A;
+  --ocean: #1E3A8A;
 
   --app-font-sans: 'Space Mono', monospace;
   --app-font-serif: Georgia, serif;
@@ -147,5 +152,47 @@
   }
   body {
     @apply font-mono antialiased bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .glass {
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .glass-terra {
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    background: rgba(45, 90, 58, 0.15);
+    border: 1px solid rgba(45, 90, 58, 0.3);
+  }
+
+  .glass-gold {
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    background: rgba(247, 147, 26, 0.08);
+    border: 1px solid rgba(247, 147, 26, 0.25);
+  }
+
+  .gradient-terra-gold {
+    background: linear-gradient(135deg, #2D5A3A 0%, #1a3a26 50%, #F7931A22 100%);
+  }
+
+  .gradient-gold-text {
+    background: linear-gradient(90deg, #F7931A, #ffc46b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .powered-by-logo {
+    filter: brightness(0) invert(0.7);
+    transition: filter 0.2s ease;
+  }
+  .powered-by-logo:hover {
+    filter: brightness(0) invert(1);
   }
 }

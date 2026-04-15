@@ -1,0 +1,63 @@
+UI/UX Core Elements
+Nicaraguan beach sunset 
+Tema Regenerativo: Verde-terra (#2D5A3A) → dorado-BTC (#F7931A), fondos sol-playa Nicaragua con overlay gaussiana blur.
+
+Componentes ad-hoc (shadcn + Tailwind):
+
+text
+Hero: Video loop Playa Pacifica + CTA "Fund Village Regen con rBTC"
+Nav: Chain Switcher (RSK/Celo) | Wallet Connect Privy | Proposals (5)
+ProposalCard: Glassmorphism, progress radial (Sí 68%), rBTC stake input, Vote button → ripple anim
+Dashboard: Heatmap villages (Nicaragua hot), regen metrics (CO2 saved, trees funded)
+Footer: F.I.R.S.T. principles scroll parallax
+Flows UX:
+
+Onboard: Privy QR/email → "Bienvenido a tu Village DAO" con avatar playa sunset.
+
+Proposal: Card expandible con regen impact (🌱 "Solar upgrade: 50t CO2/year"), slider stake rBTC.
+
+Vote: Haptic feedback, hoja verde crece en ✅ Sí, rojo marchita en ❌ No.
+
+Figma/Shadcn Code Prompt (Replit)
+Vined white bungalow 
+text
+**Crea UI RegenFi Veritas DAO con shadcn/vue + skills.sh:**
+
+Usa skills: ui-ux-pro-max, frontend-design, shadcn, polish.
+
+**Design System** (Tailwind + CSS vars):
+:root { --terra: #2D5A3A; --btc-gold: #F7931A; --ocean: #1E3A8A; }
+Glassmorphism: backdrop-blur-xl bg-white/10 border border-white/20
+
+**Páginas Vue**:
+1. /dashboard: Grid 2xl cards - Active Proposals, My Stakes rBTC, Village Impact (bar regen)
+2. /proposal/[id]: Hero video Nicaragua + Card proposal + VoteForm (Slider rBTC, buttons Sí/No)
+3. /villages: Map interactivo (Playa Pacifica, Coronado) con heat funding
+
+**Animaciones**: Framer Motion - vote success: hojas SVG crecen desde botón; chain switch: orbit ring.
+
+**Mobile-first**: Hamburguesa → slide nav con beach BG parallax.
+
+Genera: tailwind.config.js, globals.css, 3 Vue components completos, Figma link mockup.
+
+Refs: Veritas https://www.veritasvillages.com [page:3], shadcn https://ui.shadcn.com, get-shit-pretty https://github.com/jubscodes/get-shit-pretty
+Ejemplo Vue ProposalCard (shadcn-style):
+
+text
+<Card class="glassmorph max-w-md mx-auto group hover:scale-105">
+  <CardHeader>
+    <div class="flex items-center gap-3">
+      <EarthIcon class="w-8 h-8 text-terra" />
+      <h3 class="text-xl font-bold text-btc-gold">Solar Playa Pacifica</h3>
+    </div>
+  </CardHeader>
+  <CardContent>
+    <Progress value={68} class="regen-bar" />
+    <p>🌱 Regen Impact: 50t CO2 saved</p>
+    <Slider v-model={stake} max="100" class="mt-4" />
+    <Button @click="vote" class="w-full mt-6 bg-gradient-to-r from-terra to-ocean">
+      Vote {{stake}} rBTC <Lightning class="ml-2 animate-pulse" />
+    </Button>
+  </CardContent>
+</Card>
+Despliega en Replit/Vercel: UI viva que captura libertad off-grid + BTC regen ethos de Veritas.
