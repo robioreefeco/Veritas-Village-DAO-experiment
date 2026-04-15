@@ -170,9 +170,26 @@ export default function Vote() {
     }
   };
 
-  const getExplorerUrl = () => {
-    if (!voteTxId || !isLiveElection) return null;
-    return `https://dev.explorer.vote/process/${proposal.electionId}`;
+  const getExplorerUrl = (): { href: string; label: string } | null => {
+    if (!voteTxId) return null;
+    if (isLiveElection) {
+      return {
+        href: `https://dev.explorer.vote/process/${proposal.electionId}`,
+        label: "View Election on Vocdoni",
+      };
+    }
+    // For local/demo votes, link to the voter's address on the chain explorer
+    if (!walletAddress) return null;
+    if (proposal.chain === "rsk") {
+      return {
+        href: `https://explorer.testnet.rootstock.io/address/${walletAddress}`,
+        label: "View Address on RSK Testnet",
+      };
+    }
+    return {
+      href: `https://alfajores.celoscan.io/address/${walletAddress}`,
+      label: "View Address on Celo Alfajores",
+    };
   };
 
   if (voteTxId) {
@@ -203,20 +220,21 @@ export default function Vote() {
                 <span className="uppercase font-bold text-white">{proposal.chain}</span>
               </div>
               <div className="flex justify-between items-center pt-1">
-                <span className="text-white/40">{isLiveElection ? "Election" : "Status"}</span>
-                {isLiveElection && getExplorerUrl() ? (
-                  <a
-                    href={getExplorerUrl()!}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-[#F7931A] hover:underline flex items-center gap-1"
-                  >
-                    View on Vocdoni Explorer
-                    <ExternalLink className="h-3 w-3" />
-                  </a>
-                ) : (
-                  <span className="text-white/50 text-xs font-mono">Recorded locally (demo election)</span>
-                )}
+                <span className="text-white/40">Explorer</span>
+                {(() => {
+                  const link = getExplorerUrl();
+                  return link ? (
+                    <a
+                      href={link.href}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-[#F7931A] hover:underline flex items-center gap-1 text-xs"
+                    >
+                      {link.label}
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  ) : null;
+                })()}
               </div>
             </div>
             <Button
