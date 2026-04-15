@@ -62,9 +62,11 @@ export default function Admin() {
       );
       if (!privyWallet) throw new Error("Wallet not accessible");
 
-      const ethersProvider = await privyWallet.getEthersProvider();
-      const signer = ethersProvider.getSigner();
-      const signature = await signer.signMessage(message);
+      const walletClient = await privyWallet.getWalletClient();
+      const signature = await walletClient.signMessage({
+        account: walletAddress as `0x${string}`,
+        message,
+      });
 
       setSignedTitle(formData.title);
 

@@ -109,8 +109,20 @@ export default function Vote() {
         const privyWallet = wallets.find((w) => w.address.toLowerCase() === walletAddress.toLowerCase());
         if (!privyWallet) throw new Error("Wallet not found");
 
-        const ethersProvider = await privyWallet.getEthersProvider();
-        const signer = ethersProvider.getSigner();
+        const walletClient = await privyWallet.getWalletClient();
+        const addr = walletAddress as `0x${string}`;
+
+        // Minimal ethers-compatible signer adapter for Vocdoni SDK
+        const signerAdapter = {
+          getAddress: () => Promise.resolve(walletAddress),
+          signMessage: (msg: string | Uint8Array) =>
+            walletClient.signMessage({
+              account: addr,
+              message: typeof msg === "string" ? msg : { raw: msg as Uint8Array },
+            }),
+          _isSigner: true,
+          provider: null,
+        };
 
         const vocdoniEnv = (import.meta.env.VITE_VOCDONI_ENV as string) === "stg"
           ? EnvOptions.STG
@@ -118,7 +130,7 @@ export default function Vote() {
           ? EnvOptions.PROD
           : EnvOptions.DEV;
 
-        const client = new VocdoniSDKClient({ env: vocdoniEnv, wallet: signer as any });
+        const client = new VocdoniSDKClient({ env: vocdoniEnv, wallet: signerAdapter as any });
         client.setElectionId(electionId);
 
         setStatusMsg("Submitting vote to Vocdoni network...");
