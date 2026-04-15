@@ -1,0 +1,66 @@
+Historias de Usuario Actualizadas (+ Rootstock RSK)
+Agregando Rootstock (RSK) [https://github.com/rsksmart] como Bitcoin rail para Veritas (BTC → rBTC 1:1 peg), con Optimistic Rollups en Celo Superchain para L2 low-cost. Dual-chain: RSK mainnet (BTC DeFi) + Celo (AA gasless).
+
+Nuevas/Modificadas:
+
+Como holder BTC, quiero bridge BTC → rBTC via Rootstock para eligibility en censos, para usar Bitcoin nativo en votes Veritas.
+
+Como dev, quiero deploy smart contracts Celo Superchain (Optimism stack) mirrored en RSK, para interoperabilidad BTC-Celo.
+
+Como residente, quiero wallet AA Privy que switch Celo ↔ RSK, para votes cross-chain (ej. solar funding BTC-backed).
+
+Prompt por Pasos Actualizado (Copiar a Replit)
+Prompt multi-chain para Veritas DAO Voting con RSK + Celo:
+
+text
+**PROYECTO: Veritas Villages DAO - MultiChain Voting (RSK Bitcoin + Celo Superchain OR)**
+
+PASO 1: Laravel 11 + Inertia Vue3 Setup
+- composer create-project laravel/laravel veritas-multichain
+- inertiajs/inertia-laravel + vue3/tailwind/vite
+- DB: proposals (title,desc,election_id,chain:'rsk'|'celo',rbtc_balance)
+
+PASO 2: Docker Full-Stack Replit-Ready
+- docker-compose.yml: php8.3/node20/nginx/postgres/redis
+- Dockerfile multi-stage, .replit con Nix.
+
+PASO 3: Privy AA Multi-Chain
+- npm i @privy-io/react-auth wagmi viem@2
+- chains: alfajores (Celo test) + rskTestnet (https://public-node.testnet.rsk.co)
+- PrivyProvider con chain switcher dropdown.
+
+PASO 4: Vocdoni Dual-Chain
+- npm i @vocdoni/sdk ethers@6
+- Client dual: celoRpc='https://alfajores-forno.celo-testnet.org', rskRpc='https://public-node.testnet.rsk.co'
+- Census3: erc20 tokens rBTC (RSK) o cUSD (Celo).
+
+PASO 5: Smart Contracts Celo Superchain + RSK Mirror
+- Foundry/Hardhat: simple ERC20Veritas (membership token)
+- Deploy Celo OR (Optimism Bedrock), mirror bytecode RSK.
+- ABI en frontend para balance checks.
+
+PASO 6: Proposal/Vote Flow
+- Admin: createProposal → Vocdoni.election({census:'erc20-rbtc', chain})
+- Voter: Privy wallet → check balance rBTC/cUSD → vote() → tx hash explorer.
+- Results: multi-chain tally dashboard.
+
+PASO 7: Veritas Features
+- Proposals seed: "Playa Pacifica solar upgrade (BTC rail)", "Nicaragua land rules".
+- Bridge UI mock: BTC → rBTC Rootstock peg.
+
+**Secrets Replit**:
+PRIVY_APP_ID=demo
+CELO_RPC=https://alfajores-forno.celo-testnet.org
+RSK_RPC=https://public-node.testnet.rsk.co
+VOCDONI_KEY=placeholder
+
+**Refs Clave**:
+- Rootstock: https://github.com/rsksmart + https://rootstock.io/integrate/ [web:45][web:49]
+- Celo Superchain OR: https://docs.celo.org
+- Vocdoni Census3: https://pkg.go.dev/github.com/vocdoni/census3 [web:21]
+- Veritas: https://www.veritasvillages.com [page:2]
+
+Genera CÓDIGO COMPLETO paso-paso. Test: login Privy → switch RSK/Celo → vote proposal → verifica tx explorers. `docker compose up`.
+Ejecución: Pega en Replit Agent paso1→test→paso2... Resultado: DAO voting BTC-secured para Veritas en 45min, con rBTC rail perfecto para su visión Bitcoin sovereignty!
+
+Follow-ups
