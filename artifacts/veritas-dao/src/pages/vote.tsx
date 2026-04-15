@@ -142,10 +142,10 @@ export default function Vote() {
         const vote = new CspVote([CHOICE_INDEX[choice]]);
         txId = await client.cspVote(vote, signature, CspProofType.ECDSA);
       } else {
-        // Fallback: mock tx for seeded proposals
+        // Fallback: local record only — no real election exists for this proposal
         setStatusMsg("Submitting vote...");
-        await new Promise((r) => setTimeout(r, 1500));
-        txId = "0x" + Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join("");
+        await new Promise((r) => setTimeout(r, 800));
+        txId = "local";
       }
 
       await castVoteMutation.mutateAsync({
@@ -154,7 +154,10 @@ export default function Vote() {
       });
 
       setVoteTxId(txId);
-      toast({ title: "Vote Cast Successfully", description: "Your vote is on-chain." });
+      toast({
+        title: "Vote Cast Successfully",
+        description: isLiveElection ? "Vote anchored on Vocdoni chain." : "Vote recorded in the app.",
+      });
     } catch (err: any) {
       toast({
         variant: "destructive",
@@ -168,12 +171,8 @@ export default function Vote() {
   };
 
   const getExplorerUrl = () => {
-    if (!voteTxId) return "#";
-    if (isLiveElection) {
-      return `https://dev.explorer.vote/process/${proposal.electionId}`;
-    }
-    if (proposal.chain === "celo") return `https://alfajores.celoscan.io/tx/${voteTxId}`;
-    return `https://explorer.testnet.rootstock.io/tx/${voteTxId}`;
+    if (!voteTxId || !isLiveElection) return null;
+    return `https://dev.explorer.vote/process/${proposal.electionId}`;
   };
 
   if (voteTxId) {
@@ -204,11 +203,20 @@ export default function Vote() {
                 <span className="uppercase font-bold text-white">{proposal.chain}</span>
               </div>
               <div className="flex justify-between items-center pt-1">
-                <span className="text-white/40">Tx / Vote ID</span>
-                <a href={getExplorerUrl()} target="_blank" rel="noreferrer" className="text-[#F7931A] hover:underline flex items-center gap-1">
-                  {voteTxId.slice(0, 10)}...{voteTxId.slice(-6)}
-                  <ExternalLink className="h-3 w-3" />
-                </a>
+                <span className="text-white/40">{isLiveElection ? "Election" : "Status"}</span>
+                {isLiveElection && getExplorerUrl() ? (
+                  <a
+                    href={getExplorerUrl()!}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-[#F7931A] hover:underline flex items-center gap-1"
+                  >
+                    View on Vocdoni Explorer
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                ) : (
+                  <span className="text-white/50 text-xs font-mono">Recorded locally (demo election)</span>
+                )}
               </div>
             </div>
             <Button
