@@ -19,33 +19,29 @@ function VeritasLogo({ className, style }: { className?: string; style?: React.C
 
 function PoweredBy() {
   return (
-    <div className="px-4 py-4 border-t border-white/10">
-      <p className="text-[9px] uppercase tracking-widest text-white/30 mb-3 font-mono">Powered by</p>
-      <div className="flex items-center gap-4">
-        <a href="https://vocdoni.io" target="_blank" rel="noreferrer" title="Vocdoni" className="opacity-40 hover:opacity-80 transition-opacity">
-          <img
-            src={`${BASE}/vocdoni-logo.png`}
-            alt="Vocdoni"
-            className="h-6 w-6 object-contain"
-            style={{ filter: "invert(1)" }}
-          />
-        </a>
-        <a href="https://rootstock.io" target="_blank" rel="noreferrer" title="Rootstock" className="opacity-40 hover:opacity-80 transition-opacity">
-          <img
-            src={`${BASE}/rootstock-logo.png`}
-            alt="Rootstock"
-            className="h-6 w-6 object-contain"
-            style={{ filter: "invert(1)" }}
-          />
-        </a>
-        <a href="https://celo.org" target="_blank" rel="noreferrer" title="Celo" className="opacity-40 hover:opacity-80 transition-opacity">
-          <img
-            src={`${BASE}/celo-logo.png`}
-            alt="Celo"
-            className="h-4 w-14 object-contain"
-            style={{ filter: "invert(1)" }}
-          />
-        </a>
+    <div className="px-4 py-4 border-t border-white/10 space-y-4">
+      <div>
+        <p className="text-[9px] uppercase tracking-widest text-white/30 mb-3 font-mono">Powered by</p>
+        <div className="flex items-center gap-4">
+          <a href="https://vocdoni.io" target="_blank" rel="noreferrer" title="Vocdoni" className="opacity-40 hover:opacity-80 transition-opacity">
+            <img src={`${BASE}/vocdoni-logo.png`} alt="Vocdoni" className="h-6 w-6 object-contain" style={{ filter: "invert(1)" }} />
+          </a>
+          <a href="https://rootstock.io" target="_blank" rel="noreferrer" title="Rootstock" className="opacity-40 hover:opacity-80 transition-opacity">
+            <img src={`${BASE}/rootstock-logo.png`} alt="Rootstock" className="h-6 w-6 object-contain" style={{ filter: "invert(1)" }} />
+          </a>
+          <a href="https://celo.org" target="_blank" rel="noreferrer" title="Celo" className="opacity-40 hover:opacity-80 transition-opacity">
+            <img src={`${BASE}/celo-logo.png`} alt="Celo" className="h-4 w-14 object-contain" style={{ filter: "invert(1)" }} />
+          </a>
+        </div>
+      </div>
+
+      <div className="border-t border-white/5 pt-3">
+        <p className="text-[9px] uppercase tracking-widest text-white/20 mb-2 font-mono">Built at</p>
+        <img
+          src={`${BASE}/ipe-city-logo.png`}
+          alt="Ipê City"
+          className="h-5 w-auto object-contain opacity-30 hover:opacity-60 transition-opacity"
+        />
       </div>
     </div>
   );
