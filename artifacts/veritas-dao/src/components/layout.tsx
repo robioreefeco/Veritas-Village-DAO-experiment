@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { usePrivy } from "@privy-io/react-auth";
-import { LayoutDashboard, Shield, Wallet, Menu, PlusCircle, Globe, X, ExternalLink } from "lucide-react";
+import { LayoutDashboard, Shield, Wallet, Menu, PlusCircle, Globe, X, ExternalLink, ArrowRightLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const BASE = import.meta.env.BASE_URL?.replace(/\/$/, "") || "";
@@ -86,6 +86,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
     { href: "/", label: "Dashboard", icon: <LayoutDashboard className="h-4 w-4" /> },
     { href: "/proposals", label: "Proposals", icon: <Shield className="h-4 w-4" /> },
     { href: "/admin", label: "Create Proposal", icon: <PlusCircle className="h-4 w-4" /> },
+    { href: "/bridge", label: "Bridge", icon: <ArrowRightLeft className="h-4 w-4" /> },
   ];
 
   const isActive = (href: string) =>

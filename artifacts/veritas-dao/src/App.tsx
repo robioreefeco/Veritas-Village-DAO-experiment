@@ -11,6 +11,7 @@ import Proposals from "@/pages/proposals";
 import ProposalDetail from "@/pages/proposal-detail";
 import Vote from "@/pages/vote";
 import Admin from "@/pages/admin";
+import Bridge from "@/pages/bridge";
 
 const queryClient = new QueryClient();
 
@@ -36,7 +37,8 @@ function Router() {
         <Route path="/proposals" component={Proposals} />
         <Route path="/proposals/:id" component={ProposalDetail} />
         <Route path="/vote/:id" component={Vote} />
-        <Route path="/admin" component={Admin} /> 
+        <Route path="/admin" component={Admin} />
+        <Route path="/bridge" component={Bridge} /> 
         <Route component={NotFound} />
       </Switch>
     </Layout>
