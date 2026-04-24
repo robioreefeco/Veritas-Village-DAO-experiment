@@ -34,7 +34,7 @@ const CHAINS = {
     name: "Celo Alfajores",
     symbol: "CELO",
     logo: `${BASE}/celo-logo.png`,
-    logoFilter: "none",
+    logoFilter: "brightness(0) invert(1)",
     color: "#35D07F",
     rpc: "https://alfajores-forno.celo-testnet.org",
     explorer: "https://alfajores.celoscan.io",
@@ -505,7 +505,7 @@ function FaucetsTab() {
       token: "CELO + cUSD",
       color: "#35D07F",
       logo: `${BASE}/celo-logo.png`,
-      logoFilter: "none",
+      logoFilter: "brightness(0) invert(1)",
     },
   ];
 

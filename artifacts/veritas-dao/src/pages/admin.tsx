@@ -279,7 +279,7 @@ export default function Admin() {
             src={formData.chain === "celo" ? "/celo-logo.png" : "/rootstock-logo.png"}
             alt={formData.chain === "celo" ? "Celo" : "Rootstock"}
             className="h-4 w-auto object-contain"
-            style={{ filter: formData.chain === "rsk" ? "invert(1)" : "none", opacity: 0.7 }}
+            style={{ filter: formData.chain === "rsk" ? "invert(1)" : "brightness(0) invert(1)", opacity: 0.7 }}
           />
           {balanceLoading ? (
             <span className="text-white/30 text-xs">Loading balance...</span>
@@ -378,7 +378,7 @@ export default function Admin() {
                           alt={net.label}
                           className="h-8 w-auto object-contain"
                           style={{
-                            filter: net.value === "rsk" ? "invert(1)" : "none",
+                            filter: net.value === "rsk" ? "invert(1)" : "brightness(0) invert(1)",
                             opacity: active ? 1 : 0.4,
                           }}
                         />
