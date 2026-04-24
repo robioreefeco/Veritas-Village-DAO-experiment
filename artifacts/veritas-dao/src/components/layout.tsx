@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { usePrivy } from "@privy-io/react-auth";
-import { LayoutDashboard, Shield, Wallet, Menu, PlusCircle, ArrowRightLeft, X } from "lucide-react";
+import { LayoutDashboard, Shield, Wallet, Menu, PlusCircle, Globe, X, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const BASE = import.meta.env.BASE_URL?.replace(/\/$/, "") || "";
@@ -69,7 +69,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
     { href: "/", label: "Dashboard", icon: <LayoutDashboard className="h-4 w-4" /> },
     { href: "/proposals", label: "Proposals", icon: <Shield className="h-4 w-4" /> },
     { href: "/admin", label: "Create Proposal", icon: <PlusCircle className="h-4 w-4" /> },
-    { href: "/bridge", label: "BTC → rBTC Bridge", icon: <ArrowRightLeft className="h-4 w-4" /> },
   ];
 
   const isActive = (href: string) =>
@@ -109,6 +108,23 @@ export function Layout({ children }: { children: React.ReactNode }) {
             </div>
           </Link>
         ))}
+
+        <div className="pt-3 mt-2 border-t border-white/10">
+          <div className="text-[9px] font-semibold text-white/20 mb-2 uppercase tracking-widest px-2">Community</div>
+          <a
+            href="https://www.veritasvillages.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="flex items-center gap-3 px-3 py-2.5 text-sm transition-all cursor-pointer rounded-sm text-white/50 hover:text-white hover:bg-white/5 border-l-2 border-transparent group"
+          >
+            <span className="text-white/40 group-hover:text-[#2D5A3A]">
+              <Globe className="h-4 w-4" />
+            </span>
+            <span className="font-mono text-xs uppercase tracking-wider flex-1">Veritas Villages</span>
+            <ExternalLink className="h-3 w-3 text-white/20 group-hover:text-white/50 shrink-0" />
+          </a>
+        </div>
       </nav>
 
       {/* Wallet */}

@@ -10,7 +10,6 @@ import Dashboard from "@/pages/dashboard";
 import Proposals from "@/pages/proposals";
 import ProposalDetail from "@/pages/proposal-detail";
 import Vote from "@/pages/vote";
-import Bridge from "@/pages/bridge";
 import Admin from "@/pages/admin";
 
 const queryClient = new QueryClient();
@@ -37,7 +36,6 @@ function Router() {
         <Route path="/proposals" component={Proposals} />
         <Route path="/proposals/:id" component={ProposalDetail} />
         <Route path="/vote/:id" component={Vote} />
-        <Route path="/bridge" component={Bridge} />
         <Route path="/admin" component={Admin} /> 
         <Route component={NotFound} />
       </Switch>
