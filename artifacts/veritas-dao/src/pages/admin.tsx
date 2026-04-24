@@ -274,7 +274,13 @@ export default function Admin() {
           <Wallet className="h-3.5 w-3.5 text-[#F7931A]" />
           <span className="text-white/60">{walletAddress?.slice(0, 8)}...{walletAddress?.slice(-6)}</span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          <img
+            src={formData.chain === "celo" ? "/celo-logo.png" : "/rootstock-logo.png"}
+            alt={formData.chain === "celo" ? "Celo" : "Rootstock"}
+            className="h-4 w-auto object-contain"
+            style={{ filter: formData.chain === "rsk" ? "invert(1)" : "none", opacity: 0.7 }}
+          />
           {balanceLoading ? (
             <span className="text-white/30 text-xs">Loading balance...</span>
           ) : (
@@ -332,35 +338,81 @@ export default function Admin() {
               />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4 border-t border-white/10">
+            <div className="grid grid-cols-1 gap-6 pt-4 border-t border-white/10">
               <div className="space-y-3">
                 <Label className="uppercase tracking-wider text-xs text-white/40">Target Network</Label>
-                <Select value={formData.chain} onValueChange={(v) => handleChainChange(v as CreateProposalBodyChain)}>
-                  <SelectTrigger className="rounded-sm font-bold uppercase tracking-widest h-12 bg-white/5 border-white/15 text-white">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="rounded-sm font-mono bg-[#0a1a0f] border-white/15">
-                    <SelectItem value="rsk" className="uppercase tracking-widest text-[#F7931A]">Rootstock (RSK Testnet)</SelectItem>
-                    <SelectItem value="celo" className="uppercase tracking-widest text-green-400">Celo (Alfajores)</SelectItem>
-                  </SelectContent>
-                </Select>
+                <div className="grid grid-cols-2 gap-3">
+                  {[
+                    {
+                      value: "rsk" as CreateProposalBodyChain,
+                      label: "Rootstock",
+                      sublabel: "RSK Testnet · rBTC census",
+                      logo: "/rootstock-logo.png",
+                      color: "#F7931A",
+                      census: "rbtc",
+                    },
+                    {
+                      value: "celo" as CreateProposalBodyChain,
+                      label: "Celo",
+                      sublabel: "Alfajores · cUSD census",
+                      logo: "/celo-logo.png",
+                      color: "#35D07F",
+                      census: "cusd",
+                    },
+                  ].map((net) => {
+                    const active = formData.chain === net.value;
+                    return (
+                      <button
+                        key={net.value}
+                        type="button"
+                        onClick={() => handleChainChange(net.value)}
+                        className={`flex flex-col items-center gap-2 px-4 py-4 rounded-sm border-2 transition-all duration-150 ${
+                          active
+                            ? "bg-white/8 border-current"
+                            : "border-white/10 hover:border-white/25 hover:bg-white/5"
+                        }`}
+                        style={active ? { borderColor: net.color } : {}}
+                      >
+                        <img
+                          src={net.logo}
+                          alt={net.label}
+                          className="h-8 w-auto object-contain"
+                          style={{
+                            filter: net.value === "rsk" ? "invert(1)" : "none",
+                            opacity: active ? 1 : 0.4,
+                          }}
+                        />
+                        <div className="text-center">
+                          <p className={`font-bold text-xs uppercase tracking-widest ${active ? "text-white" : "text-white/40"}`}
+                            style={active ? { color: net.color } : {}}>
+                            {net.label}
+                          </p>
+                          <p className="font-mono text-[9px] text-white/30 mt-0.5">{net.sublabel}</p>
+                        </div>
+                        {active && (
+                          <span className="w-1.5 h-1.5 rounded-full" style={{ background: net.color }} />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="space-y-3">
+                <Label className="uppercase tracking-wider text-xs text-white/40">Census Token</Label>
+                <div className={`flex items-center gap-3 px-4 py-3 rounded-sm border font-mono text-sm ${
+                  formData.chain === "celo" ? "border-[#35D07F]/40 bg-[#35D07F]/5 text-[#35D07F]" : "border-[#F7931A]/40 bg-[#F7931A]/5 text-[#F7931A]"
+                }`}>
+                  <span className="text-lg font-bold">{formData.census === "rbtc" ? "₿" : "$"}</span>
+                  <div>
+                    <p className="font-bold uppercase tracking-widest text-sm">{formData.census === "rbtc" ? "rBTC" : "cUSD"}</p>
+                    <p className="text-[10px] opacity-60">Only holders can vote</p>
+                  </div>
+                </div>
               </div>
 
               <div className="space-y-3">
-                <Label className="uppercase tracking-wider text-xs text-white/40">Census Token</Label>
-                <Select value={formData.census} onValueChange={(v) => setFormData({ ...formData, census: v as CreateProposalBodyCensus })}>
-                  <SelectTrigger className="rounded-sm font-bold uppercase tracking-widest h-12 bg-white/5 border-white/15 text-white">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="rounded-sm font-mono bg-[#0a1a0f] border-white/15">
-                    {formData.chain === "celo" && <SelectItem value="cusd" className="uppercase tracking-widest">cUSD</SelectItem>}
-                    {formData.chain === "rsk" && <SelectItem value="rbtc" className="uppercase tracking-widest">rBTC</SelectItem>}
-                  </SelectContent>
-                </Select>
-                <p className="text-[10px] font-mono text-white/30">Only wallets holding this token can vote.</p>
-              </div>
-
-              <div className="space-y-3 sm:col-span-2 border-t border-white/10 pt-4">
                 <Label className="uppercase tracking-wider text-xs text-white/40">Voting Duration</Label>
                 <Select value={formData.durationDays} onValueChange={(v) => setFormData({ ...formData, durationDays: v })}>
                   <SelectTrigger className="rounded-sm font-mono h-12 bg-white/5 border-white/15 text-white">
@@ -374,6 +426,7 @@ export default function Admin() {
                   </SelectContent>
                 </Select>
               </div>
+            </div>
             </div>
 
             {/* Signing flow indicator */}

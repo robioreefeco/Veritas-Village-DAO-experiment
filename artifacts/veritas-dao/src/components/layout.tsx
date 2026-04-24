@@ -22,15 +22,36 @@ function PoweredBy() {
     <div className="px-4 py-4 border-t border-white/10 space-y-4">
       <div>
         <p className="text-[9px] uppercase tracking-widest text-white/30 mb-3 font-mono">Powered by</p>
-        <div className="flex items-center gap-4">
-          <a href="https://vocdoni.io" target="_blank" rel="noreferrer" title="Vocdoni" className="opacity-40 hover:opacity-80 transition-opacity">
-            <img src={`${BASE}/vocdoni-logo.png`} alt="Vocdoni" className="h-6 w-6 object-contain" style={{ filter: "invert(1)" }} />
+        <div className="space-y-1.5">
+          <a
+            href="https://vocdoni.io"
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center gap-2.5 px-2 py-1.5 rounded-sm hover:bg-white/5 transition-colors group"
+          >
+            <img src={`${BASE}/vocdoni-logo.png`} alt="Vocdoni" className="h-4 w-4 object-contain opacity-40 group-hover:opacity-70 transition-opacity" style={{ filter: "invert(1)" }} />
+            <span className="text-[10px] font-mono text-white/30 group-hover:text-white/60 transition-colors uppercase tracking-wider">Vocdoni</span>
+            <span className="ml-auto text-[8px] font-mono text-white/15 group-hover:text-white/30">Voting</span>
           </a>
-          <a href="https://rootstock.io" target="_blank" rel="noreferrer" title="Rootstock" className="opacity-40 hover:opacity-80 transition-opacity">
-            <img src={`${BASE}/rootstock-logo.png`} alt="Rootstock" className="h-6 w-6 object-contain" style={{ filter: "invert(1)" }} />
+          <a
+            href="https://rootstock.io"
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center gap-2.5 px-2 py-1.5 rounded-sm hover:bg-white/5 transition-colors group"
+          >
+            <img src={`${BASE}/rootstock-logo.png`} alt="Rootstock" className="h-4 w-4 object-contain opacity-40 group-hover:opacity-70 transition-opacity" style={{ filter: "invert(1)" }} />
+            <span className="text-[10px] font-mono text-white/30 group-hover:text-white/60 transition-colors uppercase tracking-wider">Rootstock</span>
+            <span className="ml-auto text-[8px] font-mono text-[#F7931A]/40 group-hover:text-[#F7931A]/70">rBTC</span>
           </a>
-          <a href="https://celo.org" target="_blank" rel="noreferrer" title="Celo" className="opacity-40 hover:opacity-80 transition-opacity">
-            <img src={`${BASE}/celo-logo.png`} alt="Celo" className="h-4 w-14 object-contain" style={{ filter: "invert(1)" }} />
+          <a
+            href="https://celo.org"
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center gap-2.5 px-2 py-1.5 rounded-sm hover:bg-white/5 transition-colors group"
+          >
+            <img src={`${BASE}/celo-logo.png`} alt="Celo" className="h-3 w-auto object-contain opacity-40 group-hover:opacity-70 transition-opacity" style={{ maxWidth: "40px" }} />
+            <span className="text-[10px] font-mono text-white/30 group-hover:text-white/60 transition-colors uppercase tracking-wider">Celo</span>
+            <span className="ml-auto text-[8px] font-mono text-green-500/40 group-hover:text-green-400/70">cUSD</span>
           </a>
         </div>
       </div>
