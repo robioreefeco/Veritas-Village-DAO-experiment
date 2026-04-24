@@ -15,6 +15,20 @@ export const HealthCheckResponse = zod.object({
 });
 
 /**
+ * @summary Request a presigned upload URL
+ */
+export const RequestUploadUrlBody = zod.object({
+  name: zod.string(),
+  size: zod.number(),
+  contentType: zod.string(),
+});
+
+export const RequestUploadUrlResponse = zod.object({
+  uploadURL: zod.string(),
+  objectPath: zod.string(),
+});
+
+/**
  * @summary List all proposals
  */
 export const ListProposalsQueryParams = zod.object({
@@ -52,6 +66,7 @@ export const CreateProposalBody = zod.object({
   creatorAddress: zod.string().regex(/^0x[0-9a-fA-F]{40}$/),
   creatorSignature: zod.string().min(10),
   anchorTxHash: zod.string().nullish(),
+  imageUrls: zod.array(zod.string()).nullish(),
 });
 
 /**
@@ -70,6 +85,7 @@ export const GetProposalResponse = zod.object({
   status: zod.enum(["active", "ended", "pending"]),
   electionId: zod.string().nullish(),
   anchorTxHash: zod.string().nullish(),
+  imageUrls: zod.array(zod.string()).nullish(),
   creatorAddress: zod.string().nullish(),
   rbtcBalance: zod.string().nullish(),
   yesVotes: zod.number(),

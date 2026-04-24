@@ -74,6 +74,32 @@ export default function ProposalDetail() {
             <div className="whitespace-pre-wrap">{proposal.description}</div>
           </section>
 
+          {proposal.imageUrls && proposal.imageUrls.length > 0 && (
+            <section className="space-y-4">
+              <h3 className="font-mono text-xs uppercase tracking-widest text-muted-foreground border-b border-border pb-2">
+                Proposal Photos
+              </h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {proposal.imageUrls.map((objectPath, idx) => (
+                  <a
+                    key={objectPath}
+                    href={`/api/storage${objectPath}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block aspect-square overflow-hidden border border-border hover:border-[#F7931A]/50 transition-colors group"
+                  >
+                    <img
+                      src={`/api/storage${objectPath}`}
+                      alt={`Proposal photo ${idx + 1}`}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      loading="lazy"
+                    />
+                  </a>
+                ))}
+              </div>
+            </section>
+          )}
+
           <section className="space-y-4 pt-8 border-t border-border">
             <h3 className="font-mono text-xs uppercase tracking-widest text-muted-foreground">Governance Parameters</h3>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">

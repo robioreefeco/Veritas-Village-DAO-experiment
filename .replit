@@ -46,3 +46,6 @@ VOCDONI_ORGANIZER_PUBKEY = "033cc7ed367710bea0e635eb53ac947347580e3fa39b833a217d
 
 [nix]
 channel = "stable-25_05"
+
+[objectStorage]
+defaultBucketID = "replit-objstore-5894d789-e1e0-4d11-b4d8-b73b8b3e2e3e"

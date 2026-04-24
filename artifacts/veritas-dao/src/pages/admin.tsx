@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useLocation } from "wouter";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { useCreateProposal } from "@workspace/api-client-react";
@@ -8,10 +8,106 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, ShieldPlus, TerminalSquare, Wallet, CheckCircle2 } from "lucide-react";
+import { Loader2, ShieldPlus, TerminalSquare, Wallet, CheckCircle2, ImagePlus, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { CreateProposalBodyChain, CreateProposalBodyCensus } from "@workspace/api-zod";
 import { useChainBalance } from "@/hooks/use-chain-balance";
+
+interface UploadedImage {
+  objectPath: string;
+  previewUrl: string;
+  name: string;
+}
+
+function PhotoUploadArea({
+  images,
+  onAdd,
+  onRemove,
+}: {
+  images: UploadedImage[];
+  onAdd: (img: UploadedImage) => void;
+  onRemove: (objectPath: string) => void;
+}) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
+  const handleFiles = async (files: FileList | null) => {
+    if (!files || !files.length) return;
+    setUploading(true);
+    setUploadError(null);
+    for (const file of Array.from(files)) {
+      if (!file.type.startsWith("image/")) continue;
+      try {
+        const res = await fetch("/api/storage/uploads/request-url", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: file.name, size: file.size, contentType: file.type }),
+        });
+        if (!res.ok) throw new Error("Failed to get upload URL");
+        const { uploadURL, objectPath } = await res.json();
+        await fetch(uploadURL, {
+          method: "PUT",
+          body: file,
+          headers: { "Content-Type": file.type },
+        });
+        onAdd({ objectPath, previewUrl: URL.createObjectURL(file), name: file.name });
+      } catch (err: any) {
+        setUploadError(err?.message || "Upload failed");
+      }
+    }
+    setUploading(false);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="flex flex-wrap gap-3">
+        {images.map((img) => (
+          <div key={img.objectPath} className="relative group w-24 h-24 border border-border overflow-hidden">
+            <img src={img.previewUrl} alt={img.name} className="w-full h-full object-cover" />
+            <button
+              type="button"
+              onClick={() => onRemove(img.objectPath)}
+              className="absolute top-1 right-1 bg-black/70 rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              <X className="h-3 w-3 text-white" />
+            </button>
+          </div>
+        ))}
+
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={uploading}
+          className="w-24 h-24 border border-dashed border-white/20 hover:border-[#F7931A]/50 flex flex-col items-center justify-center gap-1 text-white/40 hover:text-[#F7931A]/70 transition-colors"
+        >
+          {uploading ? (
+            <Loader2 className="h-5 w-5 animate-spin" />
+          ) : (
+            <ImagePlus className="h-5 w-5" />
+          )}
+          <span className="text-[9px] uppercase tracking-wider font-mono">
+            {uploading ? "Uploading..." : "Add Photo"}
+          </span>
+        </button>
+      </div>
+
+      {uploadError && (
+        <p className="text-xs text-red-400 font-mono">{uploadError}</p>
+      )}
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        multiple
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => handleFiles(e.target.files)}
+      />
+    </div>
+  );
+}
 
 export default function Admin() {
   const [, setLocation] = useLocation();
@@ -22,6 +118,7 @@ export default function Admin() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [signedTitle, setSignedTitle] = useState<string | null>(null);
+  const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -116,6 +213,7 @@ export default function Admin() {
           creatorAddress: walletAddress,
           creatorSignature: signature,
           anchorTxHash,
+          imageUrls: uploadedImages.length > 0 ? uploadedImages.map((img) => img.objectPath) : null,
         },
       });
 
@@ -220,6 +318,17 @@ export default function Admin() {
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 className="rounded-sm font-mono focus-visible:ring-[#F7931A] min-h-[180px] bg-white/5 border-white/15 text-white"
                 required
+              />
+            </div>
+
+            <div className="space-y-3 pt-2">
+              <Label className="uppercase tracking-wider text-xs text-white/40">
+                Proposal Photos <span className="text-white/20 normal-case tracking-normal font-normal">(optional — stored in Veritas DAO App Storage)</span>
+              </Label>
+              <PhotoUploadArea
+                images={uploadedImages}
+                onAdd={(img) => setUploadedImages((prev) => [...prev, img])}
+                onRemove={(path) => setUploadedImages((prev) => prev.filter((i) => i.objectPath !== path))}
               />
             </div>
 
