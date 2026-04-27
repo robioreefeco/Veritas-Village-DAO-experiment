@@ -174,7 +174,7 @@ const WITH_DIGITAL_OPTIONS: RbtcOption[] = [
     description: "RSK-native DEX and money protocol. Swap stablecoins or RIF tokens for rBTC directly on Rootstock.",
     badge: "DEX · RSK-native",
     badgeColor: "#F7931A",
-    url: "https://sovryn.app",
+    url: "https://sovryn.app/",
     cta: "Trade on Sovryn",
   },
   {

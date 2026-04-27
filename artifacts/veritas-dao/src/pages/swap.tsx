@@ -124,7 +124,7 @@ const PROVIDERS: SwapProvider[] = [
     tagline: "RSK's native DEX and money protocol. Best rates for RBTC and RIF token swaps.",
     badge: "RSK Native",
     badgeColor: "#F7931A",
-    url: "https://sovryn.app/swap",
+    url: "https://sovryn.app/",
     chains: "RSK · Bitcoin",
     icon: <TrendingUp className="h-5 w-5 text-orange-400" />,
   },
@@ -491,7 +491,7 @@ export default function Swap() {
               <AlertCircle className="h-4 w-4 text-[#F7931A] shrink-0 mt-0.5" />
               <p className="text-[10px] font-mono text-white/50 leading-relaxed">
                 RSK routes are not available via LI.FI. Use{" "}
-                <a href="https://sovryn.app/swap" target="_blank" rel="noreferrer" className="text-[#F7931A] hover:underline">Sovryn</a>
+                <a href="https://sovryn.app/" target="_blank" rel="noreferrer" className="text-[#F7931A] hover:underline">Sovryn</a>
                 {" "}for RBTC/RIF swaps, or the{" "}
                 <a href="https://app.rootstock.io/rbtc" target="_blank" rel="noreferrer" className="text-[#F7931A] hover:underline">PowPeg</a>
                 {" "}to bridge BTC ↔ rBTC.
