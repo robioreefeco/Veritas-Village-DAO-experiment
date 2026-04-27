@@ -153,7 +153,7 @@ const WITH_BTC_OPTIONS: RbtcOption[] = [
     description: "The most direct and native mechanism for acquiring rBTC with your BTC. 1:1 peg secured by Bitcoin merge-mining and HSMs.",
     badge: "Native · 1:1",
     badgeColor: "#F7931A",
-    url: "https://app.rootstock.io/rbtc",
+    url: "https://powpeg.rootstock.io",
     cta: "Go to PowPeg",
   },
   {
@@ -347,7 +347,7 @@ function PowpegTab() {
 
       {/* Personalized rBTC options CTA */}
       <a
-        href="https://rbtc.io"
+        href="https://rootstock.io/rbtc/"
         target="_blank"
         rel="noreferrer"
         className="flex items-center gap-3 glass px-4 py-3 rounded-sm border border-white/8 hover:border-[#F7931A]/30 transition-colors group"
@@ -355,7 +355,7 @@ function PowpegTab() {
         <Globe className="h-5 w-5 text-[#F7931A]/60 group-hover:text-[#F7931A] shrink-0 transition-colors" />
         <div className="flex-1 min-w-0">
           <div className="text-[11px] font-bold text-white uppercase tracking-widest">Get personalized rBTC options</div>
-          <div className="text-[9px] font-mono text-white/30 mt-0.5">Discover options from your region and preferred asset → rbtc.io</div>
+          <div className="text-[9px] font-mono text-white/30 mt-0.5">Discover options from your region and preferred asset → rootstock.io/rbtc</div>
         </div>
         <ExternalLink className="h-4 w-4 text-white/20 group-hover:text-[#F7931A] transition-colors shrink-0" />
       </a>
@@ -743,7 +743,7 @@ function FaucetsTab() {
         <p className="text-[9px] font-mono uppercase tracking-widest text-white/20 mb-3">Mainnet bridges</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {[
-            { label: "RSK PowPeg", url: "https://app.rootstock.io/rbtc", color: "#F7931A" },
+            { label: "RSK PowPeg", url: "https://powpeg.rootstock.io", color: "#F7931A" },
             { label: "Celo Bridge", url: "https://jumper.exchange/?fromChain=1&toChain=42220", color: "#35D07F" },
           ].map((b) => (
             <a key={b.label} href={b.url} target="_blank" rel="noreferrer"

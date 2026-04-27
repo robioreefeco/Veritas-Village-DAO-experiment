@@ -493,7 +493,7 @@ export default function Swap() {
                 RSK routes are not available via LI.FI. Use{" "}
                 <a href="https://sovryn.app/" target="_blank" rel="noreferrer" className="text-[#F7931A] hover:underline">Sovryn</a>
                 {" "}for RBTC/RIF swaps, or the{" "}
-                <a href="https://app.rootstock.io/rbtc" target="_blank" rel="noreferrer" className="text-[#F7931A] hover:underline">PowPeg</a>
+                <a href="https://powpeg.rootstock.io" target="_blank" rel="noreferrer" className="text-[#F7931A] hover:underline">PowPeg</a>
                 {" "}to bridge BTC ↔ rBTC.
               </p>
             </div>
