@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { usePrivy } from "@privy-io/react-auth";
-import { LayoutDashboard, Shield, Wallet, Menu, PlusCircle, Globe, X, ExternalLink, ArrowRightLeft } from "lucide-react";
+import {
+  LayoutDashboard, Shield, Wallet, Menu, PlusCircle, Globe, X,
+  ExternalLink, ArrowRightLeft, Mail, LogOut, ChevronDown, ChevronUp, Copy, CheckCircle2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const BASE = import.meta.env.BASE_URL?.replace(/\/$/, "") || "";
@@ -17,52 +20,224 @@ function VeritasLogo({ className, style }: { className?: string; style?: React.C
   );
 }
 
+function XIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.741l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.911-5.622Zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+    </svg>
+  );
+}
+
+function MetaMaskIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 35 33" fill="none">
+      <path d="M32.96 1L19.37 10.56l2.45-5.77L32.96 1z" fill="#E17726" stroke="#E17726" strokeWidth=".25" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M2.04 1l13.46 9.65-2.33-5.86L2.04 1z" fill="#E27625" stroke="#E27625" strokeWidth=".25" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M28.17 23.53l-3.61 5.52 7.73 2.13 2.22-7.52-6.34-.13zM1.52 23.66l2.21 7.52 7.72-2.13-3.6-5.52-6.33.13z" fill="#E27625" stroke="#E27625" strokeWidth=".25" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M11.03 14.51l-2.16 3.27 7.68.35-.26-8.25-5.26 4.63zM23.97 14.51l-5.32-4.72-.17 8.34 7.67-.35-2.18-3.27zM11.45 29.05l4.61-2.24-3.98-3.1-.63 5.34zM18.94 26.81l4.6 2.24-.62-5.34-3.98 3.1z" fill="#E27625" stroke="#E27625" strokeWidth=".25" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  );
+}
+
+function RabbyIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 32 32" fill="none">
+      <rect width="32" height="32" rx="8" fill="#8697FF"/>
+      <path d="M8 16c0-4.4 3.6-8 8-8s8 3.6 8 8-3.6 8-8 8-8-3.6-8-8z" fill="white" opacity=".3"/>
+      <path d="M11 16a5 5 0 1 1 10 0A5 5 0 0 1 11 16z" fill="white"/>
+    </svg>
+  );
+}
+
+function BitcoinIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 32 32" fill="none">
+      <circle cx="16" cy="16" r="16" fill="#F7931A"/>
+      <path d="M22.56 14.2c.31-2.1-1.28-3.22-3.46-3.97l.71-2.84-1.72-.43-.69 2.77-.87-.22.69-2.78-1.72-.43-.71 2.85-1.75-.44-.01.01-2.37-.59-.46 1.84s1.28.29 1.25.31a.92.92 0 0 1 .81 1l-.81 3.26a1.26 1.26 0 0 1 .16.05l-.16-.04-1.14 4.55c-.09.21-.31.53-.81.41.02.03-1.25-.31-1.25-.31l-.86 1.97 2.24.56.87.22-.72 2.9 1.72.43.71-2.85.87.22-.71 2.84 1.73.43.71-2.85c2.91.55 5.1.33 6.02-2.31.74-2.11-.04-3.33-1.56-4.13 1.11-.26 1.95-1 2.17-2.52zm-3.88 5.44c-.53 2.11-4.1.97-5.26.68l.94-3.76c1.16.29 4.89.86 4.32 3.08zm.53-5.47c-.48 1.93-3.47.95-4.43.71l.85-3.41c.96.24 4.07.68 3.58 2.7z" fill="white"/>
+    </svg>
+  );
+}
+
 function PoweredBy() {
   return (
     <div className="px-4 py-4 border-t border-white/10 space-y-4">
       <div>
         <p className="text-[9px] uppercase tracking-widest text-white/30 mb-3 font-mono">Powered by</p>
         <div className="space-y-1.5">
-          <a
-            href="https://vocdoni.io"
-            target="_blank"
-            rel="noreferrer"
-            className="flex items-center gap-2.5 px-2 py-1.5 rounded-sm hover:bg-white/5 transition-colors group"
-          >
+          <a href="https://vocdoni.io" target="_blank" rel="noreferrer"
+            className="flex items-center gap-2.5 px-2 py-1.5 rounded-sm hover:bg-white/5 transition-colors group">
             <img src={`${BASE}/vocdoni-logo.png`} alt="Vocdoni" className="h-4 w-4 object-contain opacity-40 group-hover:opacity-70 transition-opacity" style={{ filter: "invert(1)" }} />
             <span className="text-[10px] font-mono text-white/30 group-hover:text-white/60 transition-colors uppercase tracking-wider">Vocdoni</span>
             <span className="ml-auto text-[8px] font-mono text-white/15 group-hover:text-white/30">Voting</span>
           </a>
-          <a
-            href="https://rootstock.io"
-            target="_blank"
-            rel="noreferrer"
-            className="flex items-center gap-2.5 px-2 py-1.5 rounded-sm hover:bg-white/5 transition-colors group"
-          >
+          <a href="https://rootstock.io" target="_blank" rel="noreferrer"
+            className="flex items-center gap-2.5 px-2 py-1.5 rounded-sm hover:bg-white/5 transition-colors group">
             <img src={`${BASE}/rootstock-logo.png`} alt="Rootstock" className="h-4 w-4 object-contain opacity-40 group-hover:opacity-70 transition-opacity" style={{ filter: "invert(1)" }} />
             <span className="text-[10px] font-mono text-white/30 group-hover:text-white/60 transition-colors uppercase tracking-wider">Rootstock</span>
             <span className="ml-auto text-[8px] font-mono text-[#F7931A]/40 group-hover:text-[#F7931A]/70">rBTC</span>
           </a>
-          <a
-            href="https://celo.org"
-            target="_blank"
-            rel="noreferrer"
-            className="flex items-center gap-2.5 px-2 py-1.5 rounded-sm hover:bg-white/5 transition-colors group"
-          >
+          <a href="https://celo.org" target="_blank" rel="noreferrer"
+            className="flex items-center gap-2.5 px-2 py-1.5 rounded-sm hover:bg-white/5 transition-colors group">
             <img src={`${BASE}/celo-logo.png`} alt="Celo" className="h-3 w-auto object-contain opacity-40 group-hover:opacity-70 transition-opacity" style={{ maxWidth: "40px", filter: "brightness(0) invert(1)" }} />
             <span className="text-[10px] font-mono text-white/30 group-hover:text-white/60 transition-colors uppercase tracking-wider">Celo</span>
             <span className="ml-auto text-[8px] font-mono text-green-500/40 group-hover:text-green-400/70">CELO</span>
           </a>
         </div>
       </div>
-
       <div className="border-t border-white/5 pt-3">
         <p className="text-[9px] uppercase tracking-widest text-white/20 mb-2 font-mono">Built at</p>
-        <img
-          src={`${BASE}/ipe-city-logo.png`}
-          alt="Ipê City"
-          className="h-5 w-auto object-contain opacity-30 hover:opacity-60 transition-opacity"
+        <img src={`${BASE}/ipe-city-logo.png`} alt="Ipê City"
+          className="h-5 w-auto object-contain opacity-30 hover:opacity-60 transition-opacity" />
+      </div>
+    </div>
+  );
+}
+
+function LoginMethodButton({
+  onClick, icon, label, sublabel, color,
+}: {
+  onClick: () => void;
+  icon: React.ReactNode;
+  label: string;
+  sublabel?: string;
+  color?: string;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-sm border border-white/10 hover:border-white/25 bg-white/3 hover:bg-white/6 transition-all group text-left"
+    >
+      <span className="shrink-0 w-7 h-7 flex items-center justify-center">{icon}</span>
+      <div className="flex-1 min-w-0">
+        <div className="text-[11px] font-bold uppercase tracking-widest text-white group-hover:text-white/90">{label}</div>
+        {sublabel && <div className="text-[9px] font-mono text-white/30 mt-0.5">{sublabel}</div>}
+      </div>
+      <span className="text-white/20 group-hover:text-white/50 text-xs">→</span>
+    </button>
+  );
+}
+
+function UserPanel({ onLogout }: { onLogout: () => void }) {
+  const { user } = usePrivy();
+  const [expanded, setExpanded] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const walletAddress = user?.wallet?.address;
+  const email = user?.email?.address;
+  const twitterUsername = (user as any)?.twitter?.username;
+  const displayName = twitterUsername ? `@${twitterUsername}` : email ?? "";
+  const shortAddress = walletAddress
+    ? `${walletAddress.slice(0, 6)}…${walletAddress.slice(-4)}`
+    : "";
+
+  const copy = () => {
+    if (!walletAddress) return;
+    navigator.clipboard.writeText(walletAddress);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="p-3 border-t border-white/10 space-y-2">
+      <button
+        onClick={() => setExpanded(e => !e)}
+        className="w-full flex items-center gap-2.5 p-2.5 glass rounded-sm hover:bg-white/8 transition-colors group"
+      >
+        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#2D5A3A] to-[#F7931A] flex items-center justify-center shrink-0 text-white text-[10px] font-bold">
+          {twitterUsername ? <XIcon className="h-3.5 w-3.5 text-white" />
+            : email ? <Mail className="h-3.5 w-3.5 text-white" />
+            : <Wallet className="h-3.5 w-3.5 text-white" />}
+        </div>
+        <div className="flex-1 min-w-0 text-left">
+          {displayName && (
+            <div className="text-[11px] font-bold text-white truncate">{displayName}</div>
+          )}
+          {walletAddress && (
+            <div className="text-[9px] font-mono text-white/40 truncate">{shortAddress}</div>
+          )}
+        </div>
+        <span className="w-1.5 h-1.5 rounded-full bg-green-400 shrink-0" />
+        {expanded
+          ? <ChevronUp className="h-3 w-3 text-white/30 shrink-0" />
+          : <ChevronDown className="h-3 w-3 text-white/30 shrink-0" />}
+      </button>
+
+      {expanded && (
+        <div className="space-y-1.5 px-1">
+          {walletAddress && (
+            <button onClick={copy}
+              className="w-full flex items-center gap-2 px-3 py-2 rounded-sm bg-white/5 hover:bg-white/8 transition-colors text-left group">
+              <Wallet className="h-3.5 w-3.5 text-[#F7931A] shrink-0" />
+              <span className="font-mono text-[10px] text-white/60 flex-1 truncate">{shortAddress}</span>
+              {copied
+                ? <CheckCircle2 className="h-3 w-3 text-green-400 shrink-0" />
+                : <Copy className="h-3 w-3 text-white/20 group-hover:text-white/50 shrink-0" />}
+            </button>
+          )}
+          {twitterUsername && (
+            <div className="flex items-center gap-2 px-3 py-2 rounded-sm bg-white/5">
+              <XIcon className="h-3 w-3 text-white/50 shrink-0" />
+              <span className="font-mono text-[10px] text-white/60">@{twitterUsername}</span>
+            </div>
+          )}
+          {email && (
+            <div className="flex items-center gap-2 px-3 py-2 rounded-sm bg-white/5">
+              <Mail className="h-3 w-3 text-white/50 shrink-0" />
+              <span className="font-mono text-[10px] text-white/60 truncate">{email}</span>
+            </div>
+          )}
+          <button onClick={onLogout}
+            className="w-full flex items-center gap-2 px-3 py-2 rounded-sm text-red-400/70 hover:text-red-400 hover:bg-red-500/10 transition-colors group">
+            <LogOut className="h-3.5 w-3.5 shrink-0" />
+            <span className="text-[10px] font-mono uppercase tracking-widest">Disconnect</span>
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SignInPanel({ onLogin }: { onLogin: () => void }) {
+  return (
+    <div className="p-3 border-t border-white/10">
+      <p className="text-[9px] uppercase tracking-widest text-white/30 mb-2.5 font-mono px-1">Sign in to vote</p>
+      <div className="space-y-1.5">
+        <LoginMethodButton
+          onClick={onLogin}
+          icon={<XIcon className="h-4 w-4 text-white" />}
+          label="Twitter / X"
+          sublabel="Connect your X account"
         />
+        <LoginMethodButton
+          onClick={onLogin}
+          icon={<Mail className="h-4 w-4 text-white/70" />}
+          label="Email"
+          sublabel="Magic link — no password"
+        />
+        <div className="relative">
+          <div className="absolute inset-x-0 -top-px h-px bg-white/8" />
+          <div className="pt-1.5 space-y-1.5">
+            <p className="text-[8px] uppercase tracking-widest text-white/20 font-mono px-1 pt-0.5">Wallets</p>
+            <LoginMethodButton
+              onClick={onLogin}
+              icon={<MetaMaskIcon className="h-5 w-5" />}
+              label="MetaMask"
+              sublabel="RSK · Celo · EVM"
+            />
+            <LoginMethodButton
+              onClick={onLogin}
+              icon={<RabbyIcon className="h-5 w-5" />}
+              label="Rabby"
+              sublabel="Multi-chain · EVM"
+            />
+            <LoginMethodButton
+              onClick={onLogin}
+              icon={<BitcoinIcon className="h-5 w-5" />}
+              label="Bitcoin / RSK"
+              sublabel="Via Rootstock sidechain"
+            />
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -70,13 +245,8 @@ function PoweredBy() {
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
-  const { login, logout, authenticated, user } = usePrivy();
+  const { login, logout, authenticated } = usePrivy();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  const walletAddress = user?.wallet?.address;
-  const shortAddress = walletAddress
-    ? `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`
-    : "";
 
   useEffect(() => {
     document.documentElement.classList.add("dark");
@@ -90,124 +260,104 @@ export function Layout({ children }: { children: React.ReactNode }) {
   ];
 
   const isActive = (href: string) =>
-    href === "/"
-      ? location === "/"
-      : location === href || location.startsWith(href + "/");
+    href === "/" ? location === "/" : location === href || location.startsWith(href + "/");
 
   const SidebarContent = () => (
     <>
-      {/* Logo */}
-      <div className="p-5 border-b border-white/10 gradient-terra-gold">
+      {/* Fixed logo — never scrolls away */}
+      <div className="p-5 border-b border-white/10 gradient-terra-gold shrink-0">
         <VeritasLogo className="h-16 w-auto mx-auto object-contain" style={{ filter: "brightness(10) saturate(0.3)" }} />
         <p className="text-[10px] text-white/50 mt-2 text-center font-mono uppercase tracking-widest">
           Sovereign MultiChain DAO
         </p>
       </div>
 
-      {/* Nav */}
-      <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-        <div className="text-[9px] font-semibold text-white/30 mb-4 uppercase tracking-widest px-2">
-          Navigation
-        </div>
-        {navItems.map((item) => (
-          <Link key={item.href} href={item.href}>
-            <div
-              onClick={() => setIsMobileMenuOpen(false)}
-              className={`flex items-center gap-3 px-3 py-2.5 text-sm transition-all cursor-pointer rounded-sm ${
-                isActive(item.href)
-                  ? "glass-terra text-white border-l-2 border-[#F7931A]"
-                  : "text-white/50 hover:text-white hover:bg-white/5 border-l-2 border-transparent"
-              }`}
-            >
-              <span className={isActive(item.href) ? "text-[#F7931A]" : "text-white/40"}>
-                {item.icon}
-              </span>
-              <span className="font-mono text-xs uppercase tracking-wider">{item.label}</span>
-            </div>
-          </Link>
-        ))}
-
-        <div className="pt-3 mt-2 border-t border-white/10">
-          <div className="text-[9px] font-semibold text-white/20 mb-2 uppercase tracking-widest px-2">Community</div>
-          <a
-            href="https://www.veritasvillages.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => setIsMobileMenuOpen(false)}
-            className="flex items-center gap-3 px-3 py-2.5 text-sm transition-all cursor-pointer rounded-sm text-white/50 hover:text-white hover:bg-white/5 border-l-2 border-transparent group"
-          >
-            <span className="text-white/40 group-hover:text-[#2D5A3A]">
-              <Globe className="h-4 w-4" />
-            </span>
-            <span className="font-mono text-xs uppercase tracking-wider flex-1">Veritas Villages</span>
-            <ExternalLink className="h-3 w-3 text-white/20 group-hover:text-white/50 shrink-0" />
-          </a>
-        </div>
-      </nav>
-
-      {/* Wallet */}
-      <div className="p-4 border-t border-white/10">
-        {authenticated ? (
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 p-2 glass rounded-sm">
-              <Wallet className="h-3.5 w-3.5 text-[#F7931A] shrink-0" />
-              <span className="text-[11px] font-mono text-white/80 truncate">{shortAddress}</span>
-              <span className="ml-auto w-1.5 h-1.5 rounded-full bg-green-400 shrink-0" />
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full text-[10px] h-8 uppercase tracking-widest border-white/15 text-white/60 hover:text-white hover:border-white/30"
-              onClick={() => logout()}
-            >
-              Disconnect
-            </Button>
+      {/* Scrollable body: nav + auth panel + powered-by */}
+      <div className="flex-1 overflow-y-auto flex flex-col min-h-0">
+        <nav className="p-4 space-y-1">
+          <div className="text-[9px] font-semibold text-white/30 mb-4 uppercase tracking-widest px-2">
+            Navigation
           </div>
-        ) : (
-          <Button
-            size="sm"
-            className="w-full text-[10px] h-9 uppercase tracking-widest font-bold"
-            style={{ background: "linear-gradient(135deg, #2D5A3A, #F7931A)" }}
-            onClick={() => login()}
-          >
-            Connect Wallet
-          </Button>
-        )}
-      </div>
+          {navItems.map((item) => (
+            <Link key={item.href} href={item.href}>
+              <div
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`flex items-center gap-3 px-3 py-2.5 text-sm transition-all cursor-pointer rounded-sm ${
+                  isActive(item.href)
+                    ? "glass-terra text-white border-l-2 border-[#F7931A]"
+                    : "text-white/50 hover:text-white hover:bg-white/5 border-l-2 border-transparent"
+                }`}
+              >
+                <span className={isActive(item.href) ? "text-[#F7931A]" : "text-white/40"}>
+                  {item.icon}
+                </span>
+                <span className="font-mono text-xs uppercase tracking-wider">{item.label}</span>
+              </div>
+            </Link>
+          ))}
 
-      {/* Powered By */}
-      <PoweredBy />
+          <div className="pt-3 mt-2 border-t border-white/10">
+            <div className="text-[9px] font-semibold text-white/20 mb-2 uppercase tracking-widest px-2">Community</div>
+            <a
+              href="https://www.veritasvillages.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="flex items-center gap-3 px-3 py-2.5 text-sm transition-all cursor-pointer rounded-sm text-white/50 hover:text-white hover:bg-white/5 border-l-2 border-transparent group"
+            >
+              <span className="text-white/40 group-hover:text-[#2D5A3A]">
+                <Globe className="h-4 w-4" />
+              </span>
+              <span className="font-mono text-xs uppercase tracking-wider flex-1">Veritas Villages</span>
+              <ExternalLink className="h-3 w-3 text-white/20 group-hover:text-white/50 shrink-0" />
+            </a>
+          </div>
+        </nav>
+
+        <div className="mt-auto">
+          {authenticated
+            ? <UserPanel onLogout={logout} />
+            : <SignInPanel onLogin={login} />}
+          <PoweredBy />
+        </div>
+      </div>
     </>
   );
 
   return (
     <div className="min-h-screen flex w-full bg-background selection:bg-primary selection:text-primary-foreground">
-      {/* Desktop Sidebar */}
-      <aside className="hidden md:flex flex-col w-60 border-r border-white/10 bg-card shrink-0">
+      <aside className="hidden md:flex flex-col w-60 border-r border-white/10 bg-card shrink-0 h-screen sticky top-0">
         <SidebarContent />
       </aside>
 
-      {/* Mobile Header */}
       <div className="md:hidden flex flex-col w-full min-h-screen">
         <header className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-card shrink-0">
           <VeritasLogo className="h-10 w-auto object-contain" />
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-white/60"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          >
-            {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </Button>
+          <div className="flex items-center gap-2">
+            {!authenticated && (
+              <Button
+                size="sm"
+                className="text-[10px] h-8 px-3 uppercase tracking-widest font-bold"
+                style={{ background: "linear-gradient(135deg, #2D5A3A, #F7931A)" }}
+                onClick={() => login()}
+              >
+                Sign In
+              </Button>
+            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-white/60"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </Button>
+          </div>
         </header>
 
-        {/* Mobile Drawer */}
         {isMobileMenuOpen && (
           <div className="fixed inset-0 z-50 flex">
-            <div
-              className="absolute inset-0 bg-black/70 backdrop-blur-sm"
-              onClick={() => setIsMobileMenuOpen(false)}
-            />
+            <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setIsMobileMenuOpen(false)} />
             <aside className="relative flex flex-col w-72 bg-card border-r border-white/10 z-10 overflow-y-auto">
               <SidebarContent />
             </aside>
@@ -219,7 +369,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
         </main>
       </div>
 
-      {/* Desktop Main */}
       <main className="hidden md:block flex-1 overflow-y-auto bg-background p-6 lg:p-10">
         <div className="max-w-5xl mx-auto space-y-8">{children}</div>
       </main>

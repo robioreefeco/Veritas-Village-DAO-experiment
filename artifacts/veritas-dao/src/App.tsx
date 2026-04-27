@@ -15,18 +15,19 @@ import Bridge from "@/pages/bridge";
 
 const queryClient = new QueryClient();
 
-// Chain configs
-const celoSepolia = { 
-  id: 11142220, 
-  name: 'Celo Sepolia', 
-  nativeCurrency: { name: 'CELO', symbol: 'CELO', decimals: 18 }, 
-  rpcUrls: { default: { http: [import.meta.env.VITE_CELO_RPC || 'https://forno.celo.org/sepolia'] } } 
+const BASE = import.meta.env.BASE_URL?.replace(/\/$/, "") || "";
+
+const celoSepolia = {
+  id: 11142220,
+  name: 'Celo Sepolia',
+  nativeCurrency: { name: 'CELO', symbol: 'CELO', decimals: 18 },
+  rpcUrls: { default: { http: [import.meta.env.VITE_CELO_RPC || 'https://forno.celo.org/sepolia'] } }
 };
-const rskTestnet = { 
-  id: 31, 
-  name: 'RSK Testnet', 
-  nativeCurrency: { name: 'rBTC', symbol: 'rBTC', decimals: 18 }, 
-  rpcUrls: { default: { http: [import.meta.env.VITE_RSK_RPC || 'https://public-node.testnet.rsk.co'] } } 
+const rskTestnet = {
+  id: 31,
+  name: 'RSK Testnet',
+  nativeCurrency: { name: 'rBTC', symbol: 'rBTC', decimals: 18 },
+  rpcUrls: { default: { http: [import.meta.env.VITE_RSK_RPC || 'https://public-node.testnet.rsk.co'] } }
 };
 
 function Router() {
@@ -38,7 +39,7 @@ function Router() {
         <Route path="/proposals/:id" component={ProposalDetail} />
         <Route path="/vote/:id" component={Vote} />
         <Route path="/admin" component={Admin} />
-        <Route path="/bridge" component={Bridge} /> 
+        <Route path="/bridge" component={Bridge} />
         <Route component={NotFound} />
       </Switch>
     </Layout>
@@ -49,15 +50,23 @@ function App() {
   const appId = import.meta.env.VITE_PRIVY_APP_ID || 'demo';
 
   return (
-    <PrivyProvider 
+    <PrivyProvider
       appId={appId}
-      config={{ 
+      config={{
         defaultChain: rskTestnet,
         supportedChains: [rskTestnet, celoSepolia],
+        loginMethods: ['email', 'twitter', 'wallet'],
         appearance: {
           theme: 'dark',
-          accentColor: '#F7931A'
-        }
+          accentColor: '#F7931A',
+          logo: `${window.location.origin}${BASE}/veritas-logo.png`,
+          walletList: ['metamask', 'rabby', 'coinbase_wallet', 'detected_wallets'],
+          landingHeader: 'Veritas Villages DAO',
+          loginMessage: 'Sign in to vote, create proposals, and govern sovereign communities.',
+        },
+        embeddedWallets: {
+          createOnLogin: 'users-without-wallets',
+        },
       }}
     >
       <QueryClientProvider client={queryClient}>
