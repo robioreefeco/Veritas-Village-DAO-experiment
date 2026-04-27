@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { usePrivy } from "@privy-io/react-auth";
 import {
   LayoutDashboard, Shield, Wallet, Menu, PlusCircle, Globe, X,
   ExternalLink, ArrowRightLeft, Mail, LogOut, ChevronDown, ChevronUp, Copy, CheckCircle2,
+  Bitcoin,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -25,6 +26,163 @@ function XIcon({ className }: { className?: string }) {
     <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.741l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.911-5.622Zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
     </svg>
+  );
+}
+
+// ─── Wallet Icons ───────────────────────────────────────────────────────────────
+function MetaMaskIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 35 33" fill="none">
+      <path d="M32.96 1L19.37 10.56l2.45-5.77L32.96 1z" fill="#E17726" stroke="#E17726" strokeWidth=".25" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M2.04 1l13.46 9.65-2.33-5.86L2.04 1z" fill="#E27625" stroke="#E27625" strokeWidth=".25" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M28.17 23.53l-3.61 5.52 7.73 2.13 2.22-7.52-6.34-.13zM1.52 23.66l2.21 7.52 7.72-2.13-3.6-5.52-6.33.13z" fill="#E27625" stroke="#E27625" strokeWidth=".25" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M11.03 14.51l-2.16 3.27 7.68.35-.26-8.25-5.26 4.63zM23.97 14.51l-5.32-4.72-.17 8.34 7.67-.35-2.18-3.27zM11.45 29.05l4.61-2.24-3.98-3.1-.63 5.34zM18.94 26.81l4.6 2.24-.62-5.34-3.98 3.1z" fill="#E27625" stroke="#E27625" strokeWidth=".25" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  );
+}
+
+function RabbyIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 32 32" fill="none">
+      <rect width="32" height="32" rx="8" fill="#8697FF"/>
+      <path d="M8 16c0-4.4 3.6-8 8-8s8 3.6 8 8-3.6 8-8 8-8-3.6-8-8z" fill="white" opacity=".3"/>
+      <path d="M11 16a5 5 0 1 1 10 0A5 5 0 0 1 11 16z" fill="white"/>
+    </svg>
+  );
+}
+
+// ─── TopBar Login Dropdown ───────────────────────────────────────────────────────
+function LoginDropdown({ onClose }: { onClose: () => void }) {
+  const { login } = usePrivy();
+
+  const handle = () => { login(); onClose(); };
+
+  return (
+    <div className="absolute right-0 top-full mt-2 w-72 z-50 glass border border-white/12 rounded-sm shadow-2xl overflow-hidden">
+      <div className="p-3 space-y-1">
+        <p className="text-[9px] uppercase tracking-widest font-mono text-white/30 px-1 pb-1.5">Social</p>
+        <LoginMethodButton onClick={handle} icon={<XIcon className="h-4 w-4 text-white" />} label="Twitter / X" sublabel="Connect your X account" />
+        <LoginMethodButton onClick={handle} icon={<Mail className="h-4 w-4 text-white/70" />} label="Email" sublabel="Magic link — no password" />
+      </div>
+      <div className="px-3 pb-3 space-y-1 border-t border-white/8 pt-2.5">
+        <p className="text-[9px] uppercase tracking-widest font-mono text-white/30 px-1 pb-1.5">Wallets</p>
+        <LoginMethodButton onClick={handle} icon={<MetaMaskIcon className="h-5 w-5" />} label="MetaMask" sublabel="RSK · Celo · EVM" />
+        <LoginMethodButton onClick={handle} icon={<RabbyIcon className="h-5 w-5" />} label="Rabby" sublabel="Multi-chain · EVM" />
+        <LoginMethodButton onClick={handle} icon={<Bitcoin className="h-5 w-5 text-[#F7931A]" />} label="Bitcoin / RSK" sublabel="Via Rootstock sidechain" />
+      </div>
+    </div>
+  );
+}
+
+function UserDropdown({ onClose, onLogout }: { onClose: () => void; onLogout: () => void }) {
+  const { user } = usePrivy();
+  const [copied, setCopied] = useState(false);
+  const address = user?.wallet?.address ?? "";
+  const twitterUsername = (user as any)?.twitter?.username as string | undefined;
+  const email = user?.email?.address;
+  const shortAddress = address ? `${address.slice(0, 6)}…${address.slice(-4)}` : "";
+
+  const copy = () => {
+    if (!address) return;
+    navigator.clipboard.writeText(address);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="absolute right-0 top-full mt-2 w-64 z-50 glass border border-white/12 rounded-sm shadow-2xl overflow-hidden">
+      <div className="p-3 space-y-1.5">
+        {twitterUsername && (
+          <div className="flex items-center gap-2 px-3 py-2 rounded-sm bg-white/5">
+            <XIcon className="h-3 w-3 text-white/50 shrink-0" />
+            <span className="font-mono text-[10px] text-white/60">@{twitterUsername}</span>
+          </div>
+        )}
+        {email && (
+          <div className="flex items-center gap-2 px-3 py-2 rounded-sm bg-white/5">
+            <Mail className="h-3 w-3 text-white/50 shrink-0" />
+            <span className="font-mono text-[10px] text-white/60 truncate">{email}</span>
+          </div>
+        )}
+        {address && (
+          <button onClick={copy}
+            className="w-full flex items-center gap-2 px-3 py-2 rounded-sm bg-white/5 hover:bg-white/8 transition-colors text-left group">
+            <Wallet className="h-3.5 w-3.5 text-[#F7931A] shrink-0" />
+            <span className="font-mono text-[10px] text-white/60 flex-1 truncate">{shortAddress}</span>
+            {copied
+              ? <CheckCircle2 className="h-3 w-3 text-green-400 shrink-0" />
+              : <Copy className="h-3 w-3 text-white/20 group-hover:text-white/50 shrink-0" />}
+          </button>
+        )}
+        <button onClick={() => { onLogout(); onClose(); }}
+          className="w-full flex items-center gap-2 px-3 py-2 rounded-sm text-red-400/70 hover:text-red-400 hover:bg-red-500/10 transition-colors">
+          <LogOut className="h-3.5 w-3.5 shrink-0" />
+          <span className="text-[10px] font-mono uppercase tracking-widest">Disconnect</span>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function TopBar() {
+  const { authenticated, login, logout, user } = usePrivy();
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const address = user?.wallet?.address ?? "";
+  const twitterUsername = (user as any)?.twitter?.username as string | undefined;
+  const email = user?.email?.address;
+  const shortAddress = address ? `${address.slice(0, 6)}…${address.slice(-4)}` : "";
+  const displayName = twitterUsername ? `@${twitterUsername}` : email ?? (shortAddress || "");
+
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  return (
+    <div className="hidden md:flex items-center justify-end px-6 py-3 border-b border-white/8 bg-card/80 backdrop-blur-sm shrink-0">
+      <div className="relative" ref={ref}>
+        {authenticated ? (
+          <button
+            onClick={() => setOpen(o => !o)}
+            className="flex items-center gap-2.5 px-3 py-2 glass rounded-sm border border-white/10 hover:border-[#F7931A]/30 transition-colors group"
+          >
+            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#2D5A3A] to-[#F7931A] flex items-center justify-center shrink-0">
+              {twitterUsername
+                ? <XIcon className="h-3 w-3 text-white" />
+                : email
+                  ? <Mail className="h-3 w-3 text-white" />
+                  : <Wallet className="h-3 w-3 text-white" />}
+            </div>
+            <span className="text-[11px] font-mono text-white/70 group-hover:text-white transition-colors max-w-[120px] truncate">
+              {displayName}
+            </span>
+            <span className="w-1.5 h-1.5 rounded-full bg-green-400 shrink-0" />
+            <ChevronDown className={`h-3 w-3 text-white/30 shrink-0 transition-transform ${open ? "rotate-180" : ""}`} />
+          </button>
+        ) : (
+          <button
+            onClick={() => setOpen(o => !o)}
+            className="flex items-center gap-2 px-4 py-2 rounded-sm font-bold text-[11px] uppercase tracking-widest text-white transition-opacity hover:opacity-90"
+            style={{ background: "linear-gradient(135deg, #2D5A3A, #F7931A)" }}
+          >
+            <Wallet className="h-3.5 w-3.5" />
+            Sign In
+            <ChevronDown className={`h-3 w-3 transition-transform ${open ? "rotate-180" : ""}`} />
+          </button>
+        )}
+
+        {open && (
+          authenticated
+            ? <UserDropdown onClose={() => setOpen(false)} onLogout={logout} />
+            : <LoginDropdown onClose={() => setOpen(false)} />
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -261,9 +419,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         </nav>
 
         <div className="mt-auto">
-          {authenticated
-            ? <UserPanel onLogout={logout} />
-            : <SignInPanel onLogin={login} />}
+          {authenticated && <UserPanel onLogout={logout} />}
           <PoweredBy />
         </div>
       </div>
@@ -315,9 +471,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
         </main>
       </div>
 
-      <main className="hidden md:block flex-1 overflow-y-auto bg-background p-6 lg:p-10">
-        <div className="max-w-5xl mx-auto space-y-8">{children}</div>
-      </main>
+      <div className="hidden md:flex flex-col flex-1 min-h-0">
+        <TopBar />
+        <main className="flex-1 overflow-y-auto bg-background p-6 lg:p-10">
+          <div className="max-w-5xl mx-auto space-y-8">{children}</div>
+        </main>
+      </div>
     </div>
   );
 }
