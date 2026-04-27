@@ -9,7 +9,8 @@ import { useToast } from "@/hooks/use-toast";
 import {
   ArrowRightLeft, Bitcoin, Loader2, ExternalLink, Droplets,
   Info, CheckCircle2, Copy, Wallet, PlusCircle, Send,
-  AlertCircle, RefreshCw, ArrowDown,
+  AlertCircle, RefreshCw, ArrowDown, Zap, Building2, CreditCard,
+  ShieldCheck, Globe,
 } from "lucide-react";
 
 const BASE = import.meta.env.BASE_URL?.replace(/\/$/, "") || "";
@@ -100,13 +101,149 @@ async function addNetworkToWallet(provider: any, key: ChainKey) {
   });
 }
 
-// ─── Tab 1: BTC ↔ rBTC PowPeg ─────────────────────────────────────────────────
+// ─── Tab 1: Get rBTC (mirrors rootstock.io/rbtc/#get-rbtc) ────────────────────
+type GetRbtcMethod = "btc" | "digital" | "fiat";
+
+interface RbtcOption {
+  name: string;
+  icon: React.ReactNode;
+  description: string;
+  badge?: string;
+  badgeColor?: string;
+  url: string;
+  cta: string;
+}
+
+const WITH_BTC_OPTIONS: RbtcOption[] = [
+  {
+    name: "PowPeg",
+    icon: <img src={`${BASE}/rootstock-logo.png`} alt="PowPeg" className="h-6 w-6 object-contain" style={{ filter: "invert(1)" }} />,
+    description: "The most direct and native mechanism for acquiring rBTC with your BTC. 1:1 peg secured by Bitcoin merge-mining and HSMs.",
+    badge: "Native · 1:1",
+    badgeColor: "#F7931A",
+    url: "https://app.rootstock.io/rbtc",
+    cta: "Go to PowPeg",
+  },
+  {
+    name: "Boltz",
+    icon: <Zap className="h-6 w-6 text-yellow-400" />,
+    description: "Non-custodial Bitcoin bridge built to swap between different Bitcoin layers like Rootstock and the Lightning Network.",
+    badge: "Lightning · Fast",
+    badgeColor: "#EAB308",
+    url: "https://boltz.exchange",
+    cta: "Go to Boltz",
+  },
+];
+
+const WITH_DIGITAL_OPTIONS: RbtcOption[] = [
+  {
+    name: "Sovryn",
+    icon: <Globe className="h-6 w-6 text-orange-400" />,
+    description: "RSK-native DEX and money protocol. Swap stablecoins or RIF tokens for rBTC directly on Rootstock.",
+    badge: "DEX · RSK-native",
+    badgeColor: "#F7931A",
+    url: "https://sovryn.app",
+    cta: "Trade on Sovryn",
+  },
+  {
+    name: "KuCoin",
+    icon: <Building2 className="h-6 w-6 text-green-400" />,
+    description: "Buy rBTC on KuCoin with USDT, BTC or other digital assets and withdraw to your RSK wallet.",
+    badge: "CEX",
+    badgeColor: "#22C55E",
+    url: "https://www.kucoin.com/trade/RBTC-USDT",
+    cta: "Buy on KuCoin",
+  },
+  {
+    name: "Binance",
+    icon: <Building2 className="h-6 w-6 text-yellow-400" />,
+    description: "Purchase rBTC via Binance with crypto assets and withdraw to your Rootstock address.",
+    badge: "CEX",
+    badgeColor: "#EAB308",
+    url: "https://www.binance.com",
+    cta: "Open Binance",
+  },
+  {
+    name: "Gate.io",
+    icon: <Building2 className="h-6 w-6 text-blue-400" />,
+    description: "Trade rBTC pairs on Gate.io. Supports multiple base assets including USDT and BTC.",
+    badge: "CEX",
+    badgeColor: "#60A5FA",
+    url: "https://www.gate.io",
+    cta: "Open Gate.io",
+  },
+];
+
+const WITH_FIAT_OPTIONS: RbtcOption[] = [
+  {
+    name: "Mt Pelerin",
+    icon: <CreditCard className="h-6 w-6 text-blue-300" />,
+    description: "Buy rBTC directly with bank transfer, SEPA, or credit card. Swiss-regulated and non-custodial.",
+    badge: "Bank Transfer · Card",
+    badgeColor: "#93C5FD",
+    url: "https://www.mtpelerin.com/buy-rbtc",
+    cta: "Buy with Mt Pelerin",
+  },
+  {
+    name: "Transak",
+    icon: <CreditCard className="h-6 w-6 text-purple-400" />,
+    description: "On-ramp service supporting 100+ countries. Buy rBTC with credit card, debit card or bank transfer.",
+    badge: "100+ countries",
+    badgeColor: "#C084FC",
+    url: "https://global.transak.com/?defaultCryptoCurrency=RBTC",
+    cta: "Buy with Transak",
+  },
+  {
+    name: "Ramp Network",
+    icon: <CreditCard className="h-6 w-6 text-green-300" />,
+    description: "Fast and easy fiat on-ramp for rBTC. Supports Apple Pay, Google Pay, cards and bank accounts.",
+    badge: "Apple Pay · Google Pay",
+    badgeColor: "#86EFAC",
+    url: "https://ramp.network",
+    cta: "Buy via Ramp",
+  },
+];
+
+function RbtcOptionCard({ option }: { option: RbtcOption }) {
+  return (
+    <div className="glass rounded-sm p-4 border border-white/8 flex flex-col gap-3 hover:border-[#F7931A]/30 transition-colors group">
+      <div className="flex items-start gap-3">
+        <div className="w-10 h-10 rounded-sm bg-white/5 flex items-center justify-center shrink-0 group-hover:bg-white/8 transition-colors">
+          {option.icon}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="font-bold text-sm text-white uppercase tracking-widest">{option.name}</span>
+            {option.badge && (
+              <span className="text-[8px] font-mono px-1.5 py-0.5 rounded-full border"
+                style={{ color: option.badgeColor, borderColor: `${option.badgeColor}40`, background: `${option.badgeColor}10` }}>
+                {option.badge}
+              </span>
+            )}
+          </div>
+          <p className="text-[10px] font-mono text-white/40 mt-1 leading-relaxed">{option.description}</p>
+        </div>
+      </div>
+      <a
+        href={option.url}
+        target="_blank"
+        rel="noreferrer"
+        className="flex items-center justify-center gap-2 w-full py-2 rounded-sm border border-[#F7931A]/30 text-[#F7931A] hover:bg-[#F7931A]/10 transition-colors text-[10px] font-mono uppercase tracking-widest"
+      >
+        {option.cta}
+        <ExternalLink className="h-3 w-3" />
+      </a>
+    </div>
+  );
+}
+
 function PowpegTab() {
   const { authenticated, user } = usePrivy();
   const { wallets } = useWallets();
   const { toast } = useToast();
   const address = user?.wallet?.address;
   const [adding, setAdding] = useState<ChainKey | null>(null);
+  const [method, setMethod] = useState<GetRbtcMethod>("btc");
 
   const addNetwork = async (key: ChainKey) => {
     const wallet = wallets.find(w => w.address.toLowerCase() === (address ?? "").toLowerCase());
@@ -123,115 +260,139 @@ function PowpegTab() {
     }
   };
 
+  const METHOD_TABS: { key: GetRbtcMethod; label: string; icon: React.ReactNode; options: RbtcOption[] }[] = [
+    { key: "btc",     label: "With BTC",            icon: <Bitcoin className="h-3.5 w-3.5" />,    options: WITH_BTC_OPTIONS },
+    { key: "digital", label: "With Digital Assets",  icon: <ArrowRightLeft className="h-3.5 w-3.5" />, options: WITH_DIGITAL_OPTIONS },
+    { key: "fiat",    label: "With Fiat",            icon: <CreditCard className="h-3.5 w-3.5" />, options: WITH_FIAT_OPTIONS },
+  ];
+
+  const activeOptions = METHOD_TABS.find(t => t.key === method)!.options;
+
   return (
-    <div className="space-y-6">
-      {/* PowPeg explanation */}
-      <div className="glass-terra border border-[#F7931A]/20 rounded-sm p-5">
-        <div className="flex items-center gap-3 mb-4">
-          <Bitcoin className="h-6 w-6 text-[#F7931A]" />
-          <div>
-            <h3 className="font-bold text-white uppercase tracking-widest text-sm">Rootstock PowPeg</h3>
-            <p className="text-white/40 font-mono text-[10px]">Bitcoin-native, 2-way peg secured by HSMs</p>
-          </div>
+    <div className="space-y-5">
+
+      {/* Header */}
+      <div>
+        <div className="flex items-center gap-2 mb-1">
+          <img src={`${BASE}/rootstock-logo.png`} alt="RSK" className="h-5 w-5 object-contain" style={{ filter: "invert(1)" }} />
+          <h3 className="font-bold text-white uppercase tracking-widest text-sm">Get rBTC</h3>
+          <a href="https://rootstock.io/rbtc/#get-rbtc" target="_blank" rel="noreferrer"
+            className="ml-auto flex items-center gap-1 text-[9px] font-mono text-white/30 hover:text-[#F7931A] transition-colors uppercase tracking-widest">
+            rootstock.io <ExternalLink className="h-2.5 w-2.5" />
+          </a>
+        </div>
+        <p className="text-[10px] font-mono text-white/35 leading-relaxed">
+          Popular methods for getting rBTC. See the full list of bridges & exchanges on the{" "}
+          <a href="https://rootstock.io/ecosystem" target="_blank" rel="noreferrer"
+            className="text-[#F7931A]/70 hover:text-[#F7931A] underline underline-offset-2">
+            Rootstock ecosystem page
+          </a>.
+        </p>
+      </div>
+
+      {/* Method selector tabs */}
+      <div className="flex gap-1 p-1 glass rounded-sm border border-white/8">
+        {METHOD_TABS.map((t) => (
+          <button
+            key={t.key}
+            onClick={() => setMethod(t.key)}
+            className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-sm text-[10px] font-mono uppercase tracking-widest transition-all"
+            style={method === t.key
+              ? { background: "#F7931A", color: "#000", fontWeight: 700 }
+              : { color: "rgba(255,255,255,0.4)" }}
+          >
+            {t.icon}
+            <span className="hidden sm:inline">{t.label}</span>
+            <span className="sm:hidden">{t.key === "btc" ? "BTC" : t.key === "digital" ? "Digital" : "Fiat"}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Option cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {activeOptions.map((opt) => <RbtcOptionCard key={opt.name} option={opt} />)}
+      </div>
+
+      {/* Personalized rBTC options CTA */}
+      <a
+        href="https://rbtc.io"
+        target="_blank"
+        rel="noreferrer"
+        className="flex items-center gap-3 glass px-4 py-3 rounded-sm border border-white/8 hover:border-[#F7931A]/30 transition-colors group"
+      >
+        <Globe className="h-5 w-5 text-[#F7931A]/60 group-hover:text-[#F7931A] shrink-0 transition-colors" />
+        <div className="flex-1 min-w-0">
+          <div className="text-[11px] font-bold text-white uppercase tracking-widest">Get personalized rBTC options</div>
+          <div className="text-[9px] font-mono text-white/30 mt-0.5">Discover options from your region and preferred asset → rbtc.io</div>
+        </div>
+        <ExternalLink className="h-4 w-4 text-white/20 group-hover:text-[#F7931A] transition-colors shrink-0" />
+      </a>
+
+      <div className="border-t border-white/8 pt-4 space-y-4">
+
+        {/* Wallet address panel */}
+        <div>
+          <p className="text-[9px] uppercase tracking-widest font-mono text-white/25 mb-2">Your RSK wallet</p>
+          {authenticated && address ? (
+            <div className="space-y-2">
+              <CopyableAddress address={address} />
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-mono text-white/30">rBTC balance</span>
+                <BalancePill address={address} chain="rsk" />
+              </div>
+            </div>
+          ) : (
+            <div className="glass px-3 py-3 rounded-sm text-center text-white/25 font-mono text-[10px]">
+              Connect wallet to see your RSK address and balance
+            </div>
+          )}
         </div>
 
-        {/* Flow diagram */}
-        <div className="grid grid-cols-3 gap-2 items-center my-5">
-          <div className="glass rounded-sm p-3 text-center">
-            <Bitcoin className="h-6 w-6 text-[#F7931A] mx-auto mb-1" />
-            <div className="font-bold text-white text-xs uppercase tracking-widest">BTC</div>
-            <div className="text-white/30 font-mono text-[9px] mt-0.5">Bitcoin</div>
-          </div>
-          <div className="flex flex-col items-center gap-1">
-            <ArrowRightLeft className="h-5 w-5 text-white/30" />
-            <span className="text-[8px] font-mono text-white/25 text-center">~100 blocks<br />≈16 hrs</span>
-          </div>
-          <div className="glass rounded-sm p-3 text-center border border-[#F7931A]/20 bg-[#F7931A]/5">
-            <img src={`${BASE}/rootstock-logo.png`} alt="RSK" className="h-6 w-6 mx-auto mb-1 object-contain"
-              style={{ filter: "invert(1)" }} />
-            <div className="font-bold text-[#F7931A] text-xs uppercase tracking-widest">rBTC</div>
-            <div className="text-[#F7931A]/40 font-mono text-[9px] mt-0.5">Rootstock</div>
-          </div>
-        </div>
-
-        {/* User's wallet address for deposit */}
-        {authenticated && address ? (
-          <div className="space-y-2">
-            <Label className="uppercase tracking-wider text-[10px] text-white/40">
-              Your RSK deposit address
-            </Label>
-            <CopyableAddress address={address} />
-            <p className="text-[10px] font-mono text-white/25">
-              Send BTC to this address via the PowPeg to receive rBTC on Rootstock.
-            </p>
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono text-white/30">rBTC balance:</span>
-              <BalancePill address={address} chain="rsk" />
+        {/* Add Networks + Testnet faucet */}
+        {authenticated && (
+          <div className="space-y-3">
+            <p className="text-[9px] uppercase tracking-widest font-mono text-white/25">Add networks to wallet</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {(["rsk", "celo"] as ChainKey[]).map((key) => {
+                const c = CHAINS[key];
+                return (
+                  <button key={key} onClick={() => addNetwork(key)} disabled={adding === key}
+                    className="flex items-center gap-2.5 glass px-3 py-2.5 rounded-sm hover:bg-white/5 transition-colors group border text-left"
+                    style={{ borderColor: `${c.color}20` }}>
+                    <img src={c.logo} alt={c.name} className="h-5 w-5 object-contain shrink-0" style={{ filter: c.logoFilter }} />
+                    <div className="flex-1 min-w-0">
+                      <div className="font-bold text-[10px] uppercase tracking-widest" style={{ color: c.color }}>{c.name}</div>
+                      <div className="font-mono text-[8px] text-white/25">Chain ID: {c.id}</div>
+                    </div>
+                    {adding === key
+                      ? <Loader2 className="h-3.5 w-3.5 text-white/30 animate-spin shrink-0" />
+                      : <PlusCircle className="h-3.5 w-3.5 text-white/20 group-hover:text-white/60 shrink-0 transition-colors" />}
+                  </button>
+                );
+              })}
             </div>
           </div>
-        ) : (
-          <div className="glass px-3 py-3 rounded-sm text-center text-white/30 font-mono text-xs">
-            Connect wallet to see your RSK deposit address
-          </div>
         )}
-      </div>
 
-      {/* Add Networks to Wallet */}
-      {authenticated && (
-        <div className="space-y-3">
-          <p className="text-[10px] uppercase tracking-widest font-mono text-white/30">Add networks to wallet</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {(["rsk", "celo"] as ChainKey[]).map((key) => {
-              const c = CHAINS[key];
-              return (
-                <button
-                  key={key}
-                  onClick={() => addNetwork(key)}
-                  disabled={adding === key}
-                  className="flex items-center gap-3 glass px-4 py-3 rounded-sm hover:bg-white/5 transition-colors group border text-left"
-                  style={{ borderColor: `${c.color}25` }}
-                >
-                  <img src={c.logo} alt={c.name} className="h-6 w-6 object-contain shrink-0"
-                    style={{ filter: c.logoFilter }} />
-                  <div className="flex-1 min-w-0">
-                    <div className="font-bold text-xs uppercase tracking-widest" style={{ color: c.color }}>
-                      {c.name}
-                    </div>
-                    <div className="font-mono text-[9px] text-white/30">Chain ID: {c.id}</div>
-                  </div>
-                  {adding === key
-                    ? <Loader2 className="h-4 w-4 text-white/30 animate-spin shrink-0" />
-                    : <PlusCircle className="h-4 w-4 text-white/20 group-hover:text-white/60 shrink-0 transition-colors" />}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* External links */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <a href="https://app.rootstock.io/rbtc" target="_blank" rel="noreferrer"
-          className="flex items-center justify-between gap-3 glass px-4 py-3 rounded-sm hover:bg-white/5 transition-colors group">
-          <div>
-            <div className="font-bold text-white text-xs uppercase tracking-widest">Mainnet PowPeg</div>
-            <div className="font-mono text-[10px] text-white/30 mt-0.5">app.rootstock.io/rbtc</div>
-          </div>
-          <ExternalLink className="h-4 w-4 text-white/20 group-hover:text-[#F7931A] transition-colors shrink-0" />
-        </a>
+        {/* Testnet faucet */}
         <a href="https://faucet.rsk.co/" target="_blank" rel="noreferrer"
-          className="flex items-center justify-between gap-3 glass px-4 py-3 rounded-sm hover:bg-white/5 transition-colors group border border-[#F7931A]/20">
-          <div>
-            <div className="font-bold text-[#F7931A] text-xs uppercase tracking-widest">RSK Testnet Faucet</div>
-            <div className="font-mono text-[10px] text-white/30 mt-0.5">Get free tRBTC</div>
+          className="flex items-center justify-between gap-3 glass px-4 py-2.5 rounded-sm hover:bg-white/5 transition-colors group border border-[#F7931A]/15">
+          <div className="flex items-center gap-2.5">
+            <Droplets className="h-4 w-4 text-[#F7931A]/50 group-hover:text-[#F7931A] transition-colors shrink-0" />
+            <div>
+              <div className="font-bold text-[10px] text-[#F7931A] uppercase tracking-widest">RSK Testnet Faucet</div>
+              <div className="font-mono text-[9px] text-white/25">Get free tRBTC → faucet.rsk.co</div>
+            </div>
           </div>
-          <Droplets className="h-4 w-4 text-[#F7931A]/40 group-hover:text-[#F7931A] transition-colors shrink-0" />
+          <ExternalLink className="h-3.5 w-3.5 text-white/20 group-hover:text-[#F7931A] shrink-0 transition-colors" />
         </a>
       </div>
 
-      <div className="glass rounded-sm px-4 py-3 space-y-2 border border-white/5">
-        <InfoLine>1 BTC = 1 rBTC, always. The PowPeg locks BTC in HSMs and mints rBTC on Rootstock.</InfoLine>
-        <InfoLine>Peg-in and peg-out both take ~100 RSK block confirmations (≈16 hours).</InfoLine>
+      {/* Info footer */}
+      <div className="glass rounded-sm px-4 py-3 space-y-1.5 border border-white/5">
+        <InfoLine><span className="text-[#F7931A]">1 BTC = 1 rBTC</span>, always. The PowPeg locks BTC in HSMs and mints rBTC on Rootstock.</InfoLine>
+        <InfoLine>PowPeg peg-in and peg-out take ~100 RSK block confirmations (≈16 hours).</InfoLine>
+        <InfoLine>rBTC is Bitcoin made programmable — use it for gas, DeFi, governance, and swaps on RSK.</InfoLine>
       </div>
     </div>
   );
