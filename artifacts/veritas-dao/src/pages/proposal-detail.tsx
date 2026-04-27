@@ -124,26 +124,39 @@ export default function ProposalDetail() {
             </div>
 
             {proposal.anchorTxHash && (() => {
-              const explorerBase = proposal.chain === 'celo'
-                ? 'https://celo-sepolia.blockscout.com/tx/'
-                : 'https://explorer.testnet.rsk.co/tx/';
+              const isCelo = proposal.chain === 'celo';
+              const chainLabel = isCelo ? 'Celo' : 'Rootstock';
+              const txSlug = `/tx/${proposal.anchorTxHash}`;
+              const scanners = isCelo
+                ? [
+                    { url: `https://celoscan.io${txSlug}`, label: "Celoscan (Mainnet)" },
+                    { url: `https://celo-sepolia.blockscout.com${txSlug}`, label: "Celo Sepolia Blockscout (Testnet)" },
+                  ]
+                : [
+                    { url: `https://explorer.rsk.co${txSlug}`, label: "RSK Explorer (Mainnet)" },
+                    { url: `https://explorer.testnet.rsk.co${txSlug}`, label: "RSK Explorer (Testnet)" },
+                  ];
               return (
-                <a
-                  href={`${explorerBase}${proposal.anchorTxHash}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-4 flex items-center justify-between p-4 border border-[#F7931A]/30 bg-[#F7931A]/5 hover:bg-[#F7931A]/10 transition-colors group"
-                >
-                  <div>
-                    <div className="text-xs font-mono text-[#F7931A]/70 uppercase tracking-wider mb-1">
-                      On-Chain Anchor TX · {proposal.chain === 'celo' ? 'Celo Sepolia' : 'RSK Testnet'}
-                    </div>
-                    <div className="font-bold font-mono text-sm text-[#F7931A] break-all">
-                      {proposal.anchorTxHash.slice(0, 18)}…{proposal.anchorTxHash.slice(-8)}
-                    </div>
+                <div className="mt-4 space-y-2">
+                  <div className="text-xs font-mono text-[#F7931A]/70 uppercase tracking-wider">
+                    On-Chain Anchor TX · {chainLabel}
                   </div>
-                  <ExternalLink className="h-4 w-4 text-[#F7931A]/60 group-hover:text-[#F7931A] shrink-0 ml-4 transition-colors" />
-                </a>
+                  <div className="font-bold font-mono text-sm text-[#F7931A] break-all px-1">
+                    {proposal.anchorTxHash.slice(0, 18)}…{proposal.anchorTxHash.slice(-8)}
+                  </div>
+                  {scanners.map(s => (
+                    <a
+                      key={s.url}
+                      href={s.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-between p-3 border border-[#F7931A]/20 bg-[#F7931A]/5 hover:bg-[#F7931A]/10 transition-colors group rounded-sm"
+                    >
+                      <span className="text-[11px] font-mono text-[#F7931A]/80 group-hover:text-[#F7931A]">{s.label}</span>
+                      <ExternalLink className="h-3.5 w-3.5 text-[#F7931A]/50 group-hover:text-[#F7931A] shrink-0 ml-3 transition-colors" />
+                    </a>
+                  ))}
+                </div>
               );
             })()}
 

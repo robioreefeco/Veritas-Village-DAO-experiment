@@ -234,9 +234,9 @@ function PoweredBy() {
           </a>
           <a href="https://celo.org" target="_blank" rel="noreferrer"
             className="flex items-center gap-2.5 px-2 py-1.5 rounded-sm hover:bg-white/5 transition-colors group">
-            <img src={`${BASE}/celo-logo.png`} alt="Celo" className="h-4 w-4 object-contain opacity-40 group-hover:opacity-70 transition-opacity" style={{ filter: "brightness(0) invert(1)" }} />
+            <img src={`${BASE}/celo-symbol.png`} alt="Celo" className="h-4 w-4 object-contain opacity-40 group-hover:opacity-70 transition-opacity" style={{ filter: "brightness(0) invert(1)" }} />
             <span className="text-[10px] font-mono text-white/30 group-hover:text-white/60 transition-colors uppercase tracking-wider">Celo</span>
-            <img src={`${BASE}/celo-logo.png`} alt="Celo" className="ml-auto h-3 w-3 object-contain opacity-30 group-hover:opacity-60 transition-opacity" style={{ filter: "brightness(0) invert(1) sepia(1) saturate(3) hue-rotate(80deg)" }} />
+            <img src={`${BASE}/celo-symbol.png`} alt="Celo" className="ml-auto h-3 w-3 object-contain opacity-30 group-hover:opacity-60 transition-opacity" style={{ filter: "brightness(0) invert(1) sepia(1) saturate(3) hue-rotate(80deg)" }} />
           </a>
         </div>
       </div>

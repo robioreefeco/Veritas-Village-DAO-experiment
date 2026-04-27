@@ -177,26 +177,32 @@ export default function Vote() {
     }
   };
 
-  const getExplorerUrl = (): { href: string; label: string } | null => {
-    if (!voteTxId) return null;
+  // All explorer links for a given chain (mainnet + testnet)
+  const CHAIN_EXPLORERS: Record<string, { mainnet: { url: string; label: string }; testnet: { url: string; label: string } }> = {
+    rsk: {
+      mainnet: { url: "https://explorer.rsk.co", label: "RSK Explorer (Mainnet)" },
+      testnet: { url: "https://explorer.testnet.rsk.co", label: "RSK Explorer (Testnet)" },
+    },
+    celo: {
+      mainnet: { url: "https://celoscan.io", label: "Celoscan (Mainnet)" },
+      testnet: { url: "https://celo-sepolia.blockscout.com", label: "Celo Sepolia (Testnet)" },
+    },
+  };
+
+  const getExplorerLinks = (): { href: string; label: string }[] => {
+    if (!voteTxId) return [];
     if (isLiveElection) {
-      return {
-        href: `https://dev.explorer.vote/process/${proposal.electionId}`,
-        label: "View Election on Vocdoni",
-      };
+      return [{ href: `https://dev.explorer.vote/process/${proposal.electionId}`, label: "View Election on Vocdoni" }];
     }
-    // For local/demo votes, link to the voter's address on the chain explorer
-    if (!walletAddress) return null;
-    if (proposal.chain === "rsk") {
-      return {
-        href: `https://explorer.testnet.rootstock.io/address/${walletAddress}`,
-        label: "View Address on RSK Testnet",
-      };
-    }
-    return {
-      href: `https://celo-sepolia.blockscout.com/address/${walletAddress}`,
-      label: "View Address on Celo Sepolia",
-    };
+    if (!walletAddress) return [];
+    const chain = proposal.chain as string;
+    const explorers = CHAIN_EXPLORERS[chain];
+    if (!explorers) return [];
+    const addr = `/address/${walletAddress}`;
+    return [
+      { href: explorers.mainnet.url + addr, label: explorers.mainnet.label },
+      { href: explorers.testnet.url + addr, label: explorers.testnet.label },
+    ];
   };
 
   if (voteTxId) {
@@ -226,22 +232,20 @@ export default function Vote() {
                 <span className="text-white/40">Network</span>
                 <span className="uppercase font-bold text-white">{proposal.chain}</span>
               </div>
-              <div className="flex justify-between items-center pt-1">
-                <span className="text-white/40">Explorer</span>
-                {(() => {
-                  const link = getExplorerUrl();
-                  return link ? (
-                    <a
-                      href={link.href}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-[#F7931A] hover:underline flex items-center gap-1 text-xs"
-                    >
-                      {link.label}
-                      <ExternalLink className="h-3 w-3" />
-                    </a>
-                  ) : null;
-                })()}
+              <div className="pt-1 space-y-2">
+                <span className="text-white/40 block">Explorer</span>
+                {getExplorerLinks().map((link) => (
+                  <a
+                    key={link.href}
+                    href={link.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center justify-between gap-2 px-3 py-2 rounded-sm bg-white/5 hover:bg-white/8 transition-colors group"
+                  >
+                    <span className="text-[10px] font-mono text-[#F7931A]/80 group-hover:text-[#F7931A]">{link.label}</span>
+                    <ExternalLink className="h-3 w-3 text-[#F7931A]/50 group-hover:text-[#F7931A] shrink-0" />
+                  </a>
+                ))}
               </div>
             </div>
             <Button
