@@ -51,7 +51,7 @@ function PoweredBy() {
           >
             <img src={`${BASE}/celo-logo.png`} alt="Celo" className="h-3 w-auto object-contain opacity-40 group-hover:opacity-70 transition-opacity" style={{ maxWidth: "40px", filter: "brightness(0) invert(1)" }} />
             <span className="text-[10px] font-mono text-white/30 group-hover:text-white/60 transition-colors uppercase tracking-wider">Celo</span>
-            <span className="ml-auto text-[8px] font-mono text-green-500/40 group-hover:text-green-400/70">cUSD</span>
+            <span className="ml-auto text-[8px] font-mono text-green-500/40 group-hover:text-green-400/70">CELO</span>
           </a>
         </div>
       </div>

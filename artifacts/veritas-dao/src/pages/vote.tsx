@@ -194,8 +194,8 @@ export default function Vote() {
       };
     }
     return {
-      href: `https://alfajores.celoscan.io/address/${walletAddress}`,
-      label: "View Address on Celo Alfajores",
+      href: `https://celo-sepolia.blockscout.com/address/${walletAddress}`,
+      label: "View Address on Celo Sepolia",
     };
   };
 
@@ -292,7 +292,7 @@ export default function Vote() {
                 <h3 className="text-xl font-bold text-white">Wallet Required</h3>
                 <p className="text-white/40 text-sm font-mono max-w-md mx-auto">
                   Connect a wallet holding {proposal.census.toUpperCase()} on{" "}
-                  {proposal.chain === "celo" ? "Celo Alfajores" : "Rootstock Testnet"} to participate.
+                  {proposal.chain === "celo" ? "Celo Sepolia" : "Rootstock Testnet"} to participate.
                 </p>
               </div>
               <Button
@@ -331,7 +331,7 @@ export default function Vote() {
                   <AlertCircle className="h-4 w-4 text-yellow-400" />
                   <AlertTitle className="text-yellow-300">Insufficient Balance</AlertTitle>
                   <AlertDescription className="text-yellow-200/70 text-xs font-mono">
-                    You need {symbol} on {proposal.chain === "rsk" ? "RSK Testnet" : "Celo Alfajores"} to vote.
+                    You need {symbol} on {proposal.chain === "rsk" ? "RSK Testnet" : "Celo Sepolia"} to vote.
                     Your current balance is {formatted} {symbol}.
                   </AlertDescription>
                 </Alert>
@@ -400,7 +400,7 @@ export default function Vote() {
             </Button>
             {isLiveElection && (
               <p className="text-[10px] font-mono text-white/25 text-center">
-                Vote will be anchored on Vocdoni · {proposal.chain === "rsk" ? "RSK Testnet" : "Celo Alfajores"}
+                Vote will be anchored on Vocdoni · {proposal.chain === "rsk" ? "RSK Testnet" : "Celo Sepolia"}
               </p>
             )}
           </CardFooter>

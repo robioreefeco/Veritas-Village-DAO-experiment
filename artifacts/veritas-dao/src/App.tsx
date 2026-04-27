@@ -16,11 +16,11 @@ import Bridge from "@/pages/bridge";
 const queryClient = new QueryClient();
 
 // Chain configs
-const celoAlfajores = { 
-  id: 44787, 
-  name: 'Celo Alfajores', 
+const celoSepolia = { 
+  id: 11142220, 
+  name: 'Celo Sepolia', 
   nativeCurrency: { name: 'CELO', symbol: 'CELO', decimals: 18 }, 
-  rpcUrls: { default: { http: [import.meta.env.VITE_CELO_RPC || 'https://alfajores-forno.celo-testnet.org'] } } 
+  rpcUrls: { default: { http: [import.meta.env.VITE_CELO_RPC || 'https://forno.celo.org/sepolia'] } } 
 };
 const rskTestnet = { 
   id: 31, 
@@ -53,7 +53,7 @@ function App() {
       appId={appId}
       config={{ 
         defaultChain: rskTestnet,
-        supportedChains: [rskTestnet, celoAlfajores],
+        supportedChains: [rskTestnet, celoSepolia],
         appearance: {
           theme: 'dark',
           accentColor: '#F7931A'

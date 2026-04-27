@@ -11,11 +11,11 @@ const RSK_CHAIN = {
 };
 
 const CELO_CHAIN = {
-  id: 44787,
-  name: "Celo Alfajores",
+  id: 11142220,
+  name: "Celo Sepolia",
   nativeCurrency: { name: "CELO", symbol: "CELO", decimals: 18 },
   rpcUrls: {
-    default: { http: [import.meta.env.VITE_CELO_RPC || "https://alfajores-forno.celo-testnet.org"] },
+    default: { http: [import.meta.env.VITE_CELO_RPC || "https://forno.celo.org/sepolia"] },
   },
 };
 

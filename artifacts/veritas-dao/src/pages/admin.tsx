@@ -162,7 +162,7 @@ export default function Admin() {
       const provider = await (privyWallet as any).getEthereumProvider();
 
       // Switch to the correct chain so Privy shows RSK or Celo — not Base
-      const targetChainId = formData.chain === "celo" ? "0xAEF3" : "0x1f"; // Celo Alfajores 44787 | RSK Testnet 31
+      const targetChainId = formData.chain === "celo" ? "0xAA044C" : "0x1f"; // Celo Sepolia 11142220 | RSK Testnet 31
       try {
         await provider.request({ method: "wallet_switchEthereumChain", params: [{ chainId: targetChainId }] });
       } catch (_) { /* wallet may already be on the right chain */ }
@@ -184,7 +184,7 @@ export default function Admin() {
       try {
         const { toHex, defineChain } = await import("viem");
         const targetChain = formData.chain === "celo"
-          ? defineChain({ id: 44787, name: "Celo Alfajores", nativeCurrency: { name: "CELO", symbol: "CELO", decimals: 18 }, rpcUrls: { default: { http: ["https://alfajores-forno.celo-testnet.org"] } } })
+          ? defineChain({ id: 11142220, name: "Celo Sepolia", nativeCurrency: { name: "CELO", symbol: "CELO", decimals: 18 }, rpcUrls: { default: { http: ["https://forno.celo.org/sepolia"] } } })
           : defineChain({ id: 31, name: "RSK Testnet", nativeCurrency: { name: "rBTC", symbol: "rBTC", decimals: 18 }, rpcUrls: { default: { http: ["https://public-node.testnet.rsk.co"] } } });
 
         const calldata = toHex(`VeritasDAO:${formData.title}:${formData.chain}:${walletAddress}`);
@@ -354,7 +354,7 @@ export default function Admin() {
                     {
                       value: "celo" as CreateProposalBodyChain,
                       label: "Celo",
-                      sublabel: "Alfajores · cUSD census",
+                      sublabel: "Sepolia · cUSD census",
                       logo: "/celo-logo.png",
                       color: "#35D07F",
                       census: "cusd",
@@ -445,7 +445,7 @@ export default function Admin() {
               </div>
               <div className="flex items-center gap-2">
                 <span className="w-4 h-4 rounded-full flex items-center justify-center text-[9px] border border-white/20">3</span>
-                Anchor TX on {formData.chain === "celo" ? "Celo Alfajores" : "RSK Testnet"} → real TX hash
+                Anchor TX on {formData.chain === "celo" ? "Celo Sepolia" : "RSK Testnet"} → real TX hash
               </div>
               <div className="flex items-center gap-2">
                 <span className="w-4 h-4 rounded-full flex items-center justify-center text-[9px] border border-white/20">4</span>

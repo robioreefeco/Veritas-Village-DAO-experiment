@@ -299,7 +299,7 @@ export default function Dashboard() {
               <div className="flex items-center justify-between glass px-3 py-2 rounded-sm">
                 <div className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
-                  <span className="text-[11px] font-mono text-white/60">Celo Alfajores</span>
+                  <span className="text-[11px] font-mono text-white/60">Celo Sepolia</span>
                 </div>
                 <span className="text-[9px] text-green-400/80 font-mono uppercase tracking-wider">Live</span>
               </div>

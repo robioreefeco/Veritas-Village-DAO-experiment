@@ -125,7 +125,7 @@ export default function ProposalDetail() {
 
             {proposal.anchorTxHash && (() => {
               const explorerBase = proposal.chain === 'celo'
-                ? 'https://alfajores.celoscan.io/tx/'
+                ? 'https://celo-sepolia.blockscout.com/tx/'
                 : 'https://explorer.testnet.rsk.co/tx/';
               return (
                 <a
@@ -136,7 +136,7 @@ export default function ProposalDetail() {
                 >
                   <div>
                     <div className="text-xs font-mono text-[#F7931A]/70 uppercase tracking-wider mb-1">
-                      On-Chain Anchor TX · {proposal.chain === 'celo' ? 'Celo Alfajores' : 'RSK Testnet'}
+                      On-Chain Anchor TX · {proposal.chain === 'celo' ? 'Celo Sepolia' : 'RSK Testnet'}
                     </div>
                     <div className="font-bold font-mono text-sm text-[#F7931A] break-all">
                       {proposal.anchorTxHash.slice(0, 18)}…{proposal.anchorTxHash.slice(-8)}
