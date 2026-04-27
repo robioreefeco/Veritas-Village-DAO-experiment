@@ -62,7 +62,7 @@ function App() {
           theme: 'dark',
           accentColor: '#F7931A',
           logo: `${window.location.origin}${BASE}/veritas-logo.png`,
-          walletList: ['metamask', 'rabby', 'coinbase_wallet', 'detected_wallets'],
+          walletList: ['minipay', 'metamask', 'rabby', 'coinbase_wallet', 'detected_wallets'],
           landingHeader: 'Veritas Villages DAO',
           loginMessage: 'Sign in to vote, create proposals, and govern sovereign communities.',
         },
