@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { createPublicClient, http, formatEther } from "viem";
 
 const RSK_CHAIN = {
@@ -25,15 +25,19 @@ export type ChainBalanceResult = {
   symbol: string;
   loading: boolean;
   error: string | null;
+  refresh: () => void;
 };
 
 export function useChainBalance(address: string | undefined, chain: "rsk" | "celo"): ChainBalanceResult {
   const [balance, setBalance] = useState<bigint | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [tick, setTick] = useState(0);
 
   const symbol = chain === "rsk" ? "rBTC" : "CELO";
   const chainConfig = chain === "rsk" ? RSK_CHAIN : CELO_CHAIN;
+
+  const refresh = useCallback(() => setTick((t) => t + 1), []);
 
   useEffect(() => {
     if (!address) {
@@ -65,12 +69,10 @@ export function useChainBalance(address: string | undefined, chain: "rsk" | "cel
         }
       });
 
-    return () => {
-      cancelled = true;
-    };
-  }, [address, chain]);
+    return () => { cancelled = true; };
+  }, [address, chain, tick]);
 
   const formatted = balance !== null ? Number(formatEther(balance)).toFixed(6) : "—";
 
-  return { balance, formatted, symbol, loading, error };
+  return { balance, formatted, symbol, loading, error, refresh };
 }
