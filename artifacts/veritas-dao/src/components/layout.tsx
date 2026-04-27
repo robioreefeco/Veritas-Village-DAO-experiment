@@ -28,36 +28,6 @@ function XIcon({ className }: { className?: string }) {
   );
 }
 
-function MetaMaskIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 35 33" fill="none">
-      <path d="M32.96 1L19.37 10.56l2.45-5.77L32.96 1z" fill="#E17726" stroke="#E17726" strokeWidth=".25" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d="M2.04 1l13.46 9.65-2.33-5.86L2.04 1z" fill="#E27625" stroke="#E27625" strokeWidth=".25" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d="M28.17 23.53l-3.61 5.52 7.73 2.13 2.22-7.52-6.34-.13zM1.52 23.66l2.21 7.52 7.72-2.13-3.6-5.52-6.33.13z" fill="#E27625" stroke="#E27625" strokeWidth=".25" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d="M11.03 14.51l-2.16 3.27 7.68.35-.26-8.25-5.26 4.63zM23.97 14.51l-5.32-4.72-.17 8.34 7.67-.35-2.18-3.27zM11.45 29.05l4.61-2.24-3.98-3.1-.63 5.34zM18.94 26.81l4.6 2.24-.62-5.34-3.98 3.1z" fill="#E27625" stroke="#E27625" strokeWidth=".25" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
-  );
-}
-
-function RabbyIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 32 32" fill="none">
-      <rect width="32" height="32" rx="8" fill="#8697FF"/>
-      <path d="M8 16c0-4.4 3.6-8 8-8s8 3.6 8 8-3.6 8-8 8-8-3.6-8-8z" fill="white" opacity=".3"/>
-      <path d="M11 16a5 5 0 1 1 10 0A5 5 0 0 1 11 16z" fill="white"/>
-    </svg>
-  );
-}
-
-function BitcoinIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 32 32" fill="none">
-      <circle cx="16" cy="16" r="16" fill="#F7931A"/>
-      <path d="M22.56 14.2c.31-2.1-1.28-3.22-3.46-3.97l.71-2.84-1.72-.43-.69 2.77-.87-.22.69-2.78-1.72-.43-.71 2.85-1.75-.44-.01.01-2.37-.59-.46 1.84s1.28.29 1.25.31a.92.92 0 0 1 .81 1l-.81 3.26a1.26 1.26 0 0 1 .16.05l-.16-.04-1.14 4.55c-.09.21-.31.53-.81.41.02.03-1.25-.31-1.25-.31l-.86 1.97 2.24.56.87.22-.72 2.9 1.72.43.71-2.85.87.22-.71 2.84 1.73.43.71-2.85c2.91.55 5.1.33 6.02-2.31.74-2.11-.04-3.33-1.56-4.13 1.11-.26 1.95-1 2.17-2.52zm-3.88 5.44c-.53 2.11-4.1.97-5.26.68l.94-3.76c1.16.29 4.89.86 4.32 3.08zm.53-5.47c-.48 1.93-3.47.95-4.43.71l.85-3.41c.96.24 4.07.68 3.58 2.7z" fill="white"/>
-    </svg>
-  );
-}
-
 function PoweredBy() {
   return (
     <div className="px-4 py-4 border-t border-white/10 space-y-4">
@@ -214,30 +184,6 @@ function SignInPanel({ onLogin }: { onLogin: () => void }) {
           label="Email"
           sublabel="Magic link — no password"
         />
-        <div className="relative">
-          <div className="absolute inset-x-0 -top-px h-px bg-white/8" />
-          <div className="pt-1.5 space-y-1.5">
-            <p className="text-[8px] uppercase tracking-widest text-white/20 font-mono px-1 pt-0.5">Wallets</p>
-            <LoginMethodButton
-              onClick={onLogin}
-              icon={<MetaMaskIcon className="h-5 w-5" />}
-              label="MetaMask"
-              sublabel="RSK · Celo · EVM"
-            />
-            <LoginMethodButton
-              onClick={onLogin}
-              icon={<RabbyIcon className="h-5 w-5" />}
-              label="Rabby"
-              sublabel="Multi-chain · EVM"
-            />
-            <LoginMethodButton
-              onClick={onLogin}
-              icon={<BitcoinIcon className="h-5 w-5" />}
-              label="Bitcoin / RSK"
-              sublabel="Via Rootstock sidechain"
-            />
-          </div>
-        </div>
       </div>
     </div>
   );
