@@ -4,7 +4,7 @@ import { usePrivy } from "@privy-io/react-auth";
 import {
   LayoutDashboard, Shield, Wallet, Menu, PlusCircle, Globe, X,
   ExternalLink, ArrowRightLeft, Mail, LogOut, ChevronDown, ChevronUp, Copy, CheckCircle2,
-  Bitcoin, ShieldCheck,
+  Bitcoin, KeyRound, RefreshCw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -68,7 +68,7 @@ function LoginDropdown({ onClose }: { onClose: () => void }) {
 }
 
 function UserDropdown({ onClose, onLogout }: { onClose: () => void; onLogout: () => void }) {
-  const { user, exportWallet } = usePrivy();
+  const { user } = usePrivy();
   const [copied, setCopied] = useState(false);
   const address = user?.wallet?.address ?? "";
   const twitterUsername = (user as any)?.twitter?.username as string | undefined;
@@ -107,24 +107,17 @@ function UserDropdown({ onClose, onLogout }: { onClose: () => void; onLogout: ()
           </button>
         )}
 
-        {/* Wallet backup — always available when a wallet address exists */}
+        {/* Social key recovery */}
         {address && (
           <>
             <div className="border-t border-white/8 my-1" />
-            <div className="px-3 py-1">
-              <p className="text-[8px] uppercase tracking-widest text-white/25 font-mono mb-1.5">Wallet backup</p>
-              <button
-                onClick={async () => { await exportWallet({ address }); onClose(); }}
-                className="w-full flex items-center gap-2 px-3 py-2 rounded-sm bg-[#2D5A3A]/20 hover:bg-[#2D5A3A]/35 border border-[#2D5A3A]/30 hover:border-[#2D5A3A]/60 transition-all group"
-              >
-                <ShieldCheck className="h-3.5 w-3.5 text-[#4CAF72] shrink-0" />
-                <span className="text-[10px] font-mono uppercase tracking-widest text-[#4CAF72]/80 group-hover:text-[#4CAF72]">
-                  Export private key
-                </span>
-              </button>
-              <p className="text-[8px] font-mono text-white/20 mt-1.5 leading-relaxed px-0.5">
-                Save your key securely to access your wallet independently of this app.
-              </p>
+            <div className="px-1 py-1">
+              <SocialKeyRecovery
+                address={address}
+                twitterUsername={twitterUsername}
+                email={email}
+                compact
+              />
             </div>
           </>
         )}
@@ -247,6 +240,127 @@ function PoweredBy() {
   );
 }
 
+// ─── Social Key Recovery Card ────────────────────────────────────────────────
+function SocialKeyRecovery({
+  address,
+  twitterUsername,
+  email,
+  compact = false,
+}: {
+  address: string;
+  twitterUsername?: string;
+  email?: string;
+  compact?: boolean;
+}) {
+  const { exportWallet } = usePrivy();
+  const [loading, setLoading] = useState(false);
+  const [done, setDone] = useState(false);
+
+  const socialLabel = twitterUsername
+    ? `@${twitterUsername} (X / Twitter)`
+    : email ?? "your social account";
+  const socialIcon = twitterUsername
+    ? <XIcon className="h-3 w-3 text-white/60" />
+    : <Mail className="h-3 w-3 text-white/60" />;
+
+  const handleExport = async () => {
+    setLoading(true);
+    try {
+      await exportWallet({ address });
+      setDone(true);
+      setTimeout(() => setDone(false), 3000);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (compact) {
+    return (
+      <div className="border-t border-white/8 pt-2 space-y-1.5">
+        <p className="text-[8px] uppercase tracking-widest text-white/25 font-mono px-1">
+          Social key recovery
+        </p>
+        <button
+          onClick={handleExport}
+          disabled={loading}
+          className="w-full flex items-center gap-2 px-3 py-2 rounded-sm bg-[#F7931A]/8 hover:bg-[#F7931A]/15 border border-[#F7931A]/20 hover:border-[#F7931A]/40 transition-all group disabled:opacity-50"
+        >
+          {loading
+            ? <RefreshCw className="h-3.5 w-3.5 text-[#F7931A] shrink-0 animate-spin" />
+            : done
+            ? <CheckCircle2 className="h-3.5 w-3.5 text-green-400 shrink-0" />
+            : <KeyRound className="h-3.5 w-3.5 text-[#F7931A] shrink-0" />}
+          <span className="text-[10px] font-mono uppercase tracking-widest text-[#F7931A]/80 group-hover:text-[#F7931A]">
+            {done ? "Key revealed" : "Recover private key"}
+          </span>
+        </button>
+        <p className="text-[8px] font-mono text-white/20 leading-relaxed px-1">
+          Authenticated via {socialLabel}. Keep your key safe — it gives full wallet access.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-sm border border-[#F7931A]/15 bg-[#F7931A]/5 overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center gap-2 px-3 pt-3 pb-2">
+        <div className="w-6 h-6 rounded-full bg-[#F7931A]/15 flex items-center justify-center shrink-0">
+          <KeyRound className="h-3.5 w-3.5 text-[#F7931A]" />
+        </div>
+        <div>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-[#F7931A]">
+            Social Key Recovery
+          </p>
+          <p className="text-[8px] font-mono text-white/30 leading-relaxed mt-0.5">
+            Your wallet is guarded by your social login
+          </p>
+        </div>
+      </div>
+
+      {/* Social account row */}
+      <div className="mx-3 mb-2 flex items-center gap-1.5 px-2 py-1.5 rounded-sm bg-white/5 border border-white/8">
+        {socialIcon}
+        <span className="text-[9px] font-mono text-white/50 truncate flex-1">{socialLabel}</span>
+        <span className="text-[8px] font-mono text-green-400/70 uppercase tracking-wider shrink-0">Guardian</span>
+      </div>
+
+      {/* Explanation bullets */}
+      <div className="mx-3 mb-2 space-y-0.5">
+        {[
+          "Privy verifies your social login before revealing the key",
+          "Export your private key to use in any external wallet",
+          "Store it offline — it grants full, permanent access",
+        ].map((t) => (
+          <div key={t} className="flex items-start gap-1.5">
+            <span className="text-[#F7931A]/40 text-[8px] mt-0.5 shrink-0">›</span>
+            <span className="text-[8px] font-mono text-white/25 leading-relaxed">{t}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* CTA */}
+      <div className="px-3 pb-3">
+        <button
+          onClick={handleExport}
+          disabled={loading}
+          className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-sm font-mono text-[10px] uppercase tracking-widest transition-all disabled:opacity-50"
+          style={{ background: done ? "rgba(74,207,114,0.15)" : "linear-gradient(135deg, rgba(45,90,58,0.4), rgba(247,147,26,0.2))", border: done ? "1px solid rgba(74,207,114,0.4)" : "1px solid rgba(247,147,26,0.3)" }}
+        >
+          {loading
+            ? <RefreshCw className="h-3.5 w-3.5 text-[#F7931A] animate-spin" />
+            : done
+            ? <CheckCircle2 className="h-3.5 w-3.5 text-green-400" />
+            : <KeyRound className="h-3.5 w-3.5 text-[#F7931A]" />}
+          <span className={done ? "text-green-400" : "text-[#F7931A]"}>
+            {loading ? "Authenticating…" : done ? "Private key revealed" : "Recover private key"}
+          </span>
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function LoginMethodButton({
   onClick, icon, label, sublabel, color,
 }: {
@@ -272,7 +386,7 @@ function LoginMethodButton({
 }
 
 function UserPanel({ onLogout }: { onLogout: () => void }) {
-  const { user, exportWallet } = usePrivy();
+  const { user } = usePrivy();
   const [expanded, setExpanded] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -340,23 +454,15 @@ function UserPanel({ onLogout }: { onLogout: () => void }) {
             </div>
           )}
 
-          {/* Wallet backup — always available when a wallet address exists */}
+          {/* Social key recovery — full card */}
           {walletAddress && (
-            <>
-              <div className="border-t border-white/8 pt-1.5">
-                <p className="text-[8px] uppercase tracking-widest text-white/25 font-mono mb-1.5 px-1">Wallet backup</p>
-                <button
-                  onClick={async () => { await exportWallet({ address: walletAddress }); }}
-                  className="w-full flex items-center gap-2 px-3 py-2 rounded-sm bg-[#2D5A3A]/20 hover:bg-[#2D5A3A]/35 border border-[#2D5A3A]/30 hover:border-[#2D5A3A]/60 transition-all group"
-                >
-                  <ShieldCheck className="h-3.5 w-3.5 text-[#4CAF72] shrink-0" />
-                  <span className="text-[10px] font-mono uppercase tracking-widest text-[#4CAF72]/80 group-hover:text-[#4CAF72]">Export private key</span>
-                </button>
-                <p className="text-[8px] font-mono text-white/20 mt-1.5 leading-relaxed px-1">
-                  Save your key to access your wallet independently.
-                </p>
-              </div>
-            </>
+            <div className="pt-1.5">
+              <SocialKeyRecovery
+                address={walletAddress}
+                twitterUsername={twitterUsername}
+                email={email}
+              />
+            </div>
           )}
 
           <button onClick={onLogout}
@@ -372,8 +478,8 @@ function UserPanel({ onLogout }: { onLogout: () => void }) {
 
 function SignInPanel({ onLogin }: { onLogin: () => void }) {
   return (
-    <div className="p-3 border-t border-white/10">
-      <p className="text-[9px] uppercase tracking-widest text-white/30 mb-2.5 font-mono px-1">Sign in to vote</p>
+    <div className="p-3 border-t border-white/10 space-y-3">
+      <p className="text-[9px] uppercase tracking-widest text-white/30 font-mono px-1">Sign in to vote</p>
       <div className="space-y-1.5">
         <LoginMethodButton
           onClick={onLogin}
@@ -387,6 +493,27 @@ function SignInPanel({ onLogin }: { onLogin: () => void }) {
           label="Email"
           sublabel="Magic link — no password"
         />
+      </div>
+
+      {/* Social recovery info for returning users */}
+      <div className="rounded-sm border border-[#F7931A]/12 bg-[#F7931A]/4 px-3 py-2.5 space-y-1.5">
+        <div className="flex items-center gap-1.5">
+          <KeyRound className="h-3 w-3 text-[#F7931A]/60 shrink-0" />
+          <p className="text-[9px] font-bold uppercase tracking-widest text-[#F7931A]/70">
+            Returning? Recover your wallet
+          </p>
+        </div>
+        <p className="text-[8px] font-mono text-white/30 leading-relaxed">
+          Log in with the same social account you used before — Privy automatically restores your embedded wallet.
+          Once signed in, use <span className="text-[#F7931A]/60">Social Key Recovery</span> to export your private key for full self-custody.
+        </p>
+        <button
+          onClick={onLogin}
+          className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-sm border border-[#F7931A]/20 hover:border-[#F7931A]/40 bg-[#F7931A]/8 hover:bg-[#F7931A]/15 transition-all"
+        >
+          <RefreshCw className="h-3 w-3 text-[#F7931A]/70" />
+          <span className="text-[9px] font-mono uppercase tracking-widest text-[#F7931A]/70">Restore wallet access</span>
+        </button>
       </div>
     </div>
   );
@@ -465,7 +592,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         </nav>
 
         <div className="mt-auto">
-          {authenticated && <UserPanel onLogout={logout} />}
+          {authenticated ? <UserPanel onLogout={logout} /> : <SignInPanel onLogin={login} />}
           <PoweredBy />
         </div>
       </div>
