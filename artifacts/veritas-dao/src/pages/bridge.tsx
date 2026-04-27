@@ -18,10 +18,40 @@ const BASE = import.meta.env.BASE_URL?.replace(/\/$/, "") || "";
 // ─── Chain configs ─────────────────────────────────────────────────────────────
 const CHAINS = {
   rsk: {
+    id: 30,
+    hexId: "0x1e",
+    name: "Rootstock",
+    symbol: "rBTC",
+    logo: `${BASE}/rootstock-logo.png`,
+    logoFilter: "invert(1)",
+    color: "#F7931A",
+    rpc: "https://public-node.rsk.co",
+    explorer: "https://explorer.rsk.co",
+    faucetUrl: "https://faucet.rsk.co/",
+    faucetToken: "rBTC",
+    blockExplorerName: "RSK Explorer",
+    mainnet: true,
+  },
+  celo: {
+    id: 42220,
+    hexId: "0xA4EC",
+    name: "Celo",
+    symbol: "CELO",
+    logo: `${BASE}/celo-logo.png`,
+    logoFilter: "brightness(0) invert(1)",
+    color: "#35D07F",
+    rpc: "https://forno.celo.org",
+    explorer: "https://celoscan.io",
+    faucetUrl: "https://faucet.celo.org/celo-sepolia",
+    faucetToken: "CELO",
+    blockExplorerName: "Celoscan",
+    mainnet: true,
+  },
+  rskTestnet: {
     id: 31,
     hexId: "0x1f",
     name: "RSK Testnet",
-    symbol: "rBTC",
+    symbol: "tRBTC",
     logo: `${BASE}/rootstock-logo.png`,
     logoFilter: "invert(1)",
     color: "#F7931A",
@@ -30,8 +60,9 @@ const CHAINS = {
     faucetUrl: "https://faucet.rsk.co/",
     faucetToken: "tRBTC",
     blockExplorerName: "RSK Explorer",
+    mainnet: false,
   },
-  celo: {
+  celoTestnet: {
     id: 11142220,
     hexId: "0xAA044C",
     name: "Celo Sepolia",
@@ -44,6 +75,7 @@ const CHAINS = {
     faucetUrl: "https://faucet.celo.org/celo-sepolia",
     faucetToken: "CELO",
     blockExplorerName: "Blockscout",
+    mainnet: false,
   },
 } as const;
 
@@ -619,9 +651,9 @@ function FaucetsTab() {
   const faucets = [
     {
       name: "RSK Testnet Faucet",
-      description: "Get free tRBTC for Rootstock Testnet (chainId 31)",
+      description: "Get free tRBTC for RSK Testnet — used for governance voting",
       url: address ? `https://faucet.rsk.co/?address=${address}` : "https://faucet.rsk.co/",
-      chain: "rsk" as ChainKey,
+      chain: "rskTestnet" as ChainKey,
       token: "tRBTC",
       color: "#F7931A",
       logo: `${BASE}/rootstock-logo.png`,
@@ -629,9 +661,9 @@ function FaucetsTab() {
     },
     {
       name: "Celo Sepolia Faucet",
-      description: "Get free CELO for Celo Sepolia (chainId 11142220)",
+      description: "Get free CELO for Celo Sepolia — used for governance voting",
       url: address ? `https://faucet.celo.org/celo-sepolia?address=${address}` : "https://faucet.celo.org/celo-sepolia",
-      chain: "celo" as ChainKey,
+      chain: "celoTestnet" as ChainKey,
       token: "CELO",
       color: "#35D07F",
       logo: `${BASE}/celo-logo.png`,

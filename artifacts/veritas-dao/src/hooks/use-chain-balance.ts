@@ -1,7 +1,23 @@
 import { useCallback, useEffect, useState } from "react";
 import { createPublicClient, http, formatEther } from "viem";
 
-const RSK_CHAIN = {
+// ── Mainnet chains ─────────────────────────────────────────────────────────────
+const RSK_MAINNET = {
+  id: 30,
+  name: "Rootstock",
+  nativeCurrency: { name: "rBTC", symbol: "rBTC", decimals: 18 },
+  rpcUrls: { default: { http: ["https://public-node.rsk.co"] } },
+};
+
+const CELO_MAINNET = {
+  id: 42220,
+  name: "Celo",
+  nativeCurrency: { name: "CELO", symbol: "CELO", decimals: 18 },
+  rpcUrls: { default: { http: ["https://forno.celo.org"] } },
+};
+
+// ── Testnet chains ─────────────────────────────────────────────────────────────
+const RSK_TESTNET = {
   id: 31,
   name: "RSK Testnet",
   nativeCurrency: { name: "rBTC", symbol: "rBTC", decimals: 18 },
@@ -10,7 +26,7 @@ const RSK_CHAIN = {
   },
 };
 
-const CELO_CHAIN = {
+const CELO_TESTNET = {
   id: 11142220,
   name: "Celo Sepolia",
   nativeCurrency: { name: "CELO", symbol: "CELO", decimals: 18 },
@@ -18,6 +34,22 @@ const CELO_CHAIN = {
     default: { http: [import.meta.env.VITE_CELO_RPC || "https://forno.celo.org/sepolia"] },
   },
 };
+
+const CHAIN_MAP = {
+  rsk: RSK_MAINNET,
+  celo: CELO_MAINNET,
+  rskTestnet: RSK_TESTNET,
+  celoTestnet: CELO_TESTNET,
+} as const;
+
+const SYMBOL_MAP: Record<string, string> = {
+  rsk: "rBTC",
+  celo: "CELO",
+  rskTestnet: "tRBTC",
+  celoTestnet: "CELO",
+};
+
+export type ChainKey = keyof typeof CHAIN_MAP;
 
 export type ChainBalanceResult = {
   balance: bigint | null;
@@ -28,14 +60,14 @@ export type ChainBalanceResult = {
   refresh: () => void;
 };
 
-export function useChainBalance(address: string | undefined, chain: "rsk" | "celo"): ChainBalanceResult {
+export function useChainBalance(address: string | undefined, chain: ChainKey): ChainBalanceResult {
   const [balance, setBalance] = useState<bigint | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [tick, setTick] = useState(0);
 
-  const symbol = chain === "rsk" ? "rBTC" : "CELO";
-  const chainConfig = chain === "rsk" ? RSK_CHAIN : CELO_CHAIN;
+  const symbol = SYMBOL_MAP[chain] ?? "—";
+  const chainConfig = CHAIN_MAP[chain];
 
   const refresh = useCallback(() => setTick((t) => t + 1), []);
 

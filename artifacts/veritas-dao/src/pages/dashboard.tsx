@@ -296,20 +296,20 @@ export default function Dashboard() {
           <div className="space-y-2">
             <p className="text-[9px] uppercase tracking-widest text-white/25 font-mono">Chain Status</p>
             <div className="flex flex-col gap-1.5">
-              <div className="flex items-center justify-between glass px-3 py-2 rounded-sm">
-                <div className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
-                  <span className="text-[11px] font-mono text-white/60">Celo Sepolia</span>
+              {[
+                { label: "Celo", dot: "bg-[#35D07F]", tag: "Mainnet", tagColor: "text-[#35D07F]/80" },
+                { label: "Rootstock", dot: "bg-[#F7931A]", tag: "Mainnet", tagColor: "text-[#F7931A]/80" },
+                { label: "Celo Sepolia", dot: "bg-green-400/50", tag: "Testnet", tagColor: "text-green-400/50" },
+                { label: "RSK Testnet", dot: "bg-[#F7931A]/40", tag: "Testnet", tagColor: "text-[#F7931A]/40" },
+              ].map(({ label, dot, tag, tagColor }) => (
+                <div key={label} className="flex items-center justify-between glass px-3 py-2 rounded-sm">
+                  <div className="flex items-center gap-2">
+                    <span className={`w-1.5 h-1.5 rounded-full ${dot}`} />
+                    <span className="text-[11px] font-mono text-white/60">{label}</span>
+                  </div>
+                  <span className={`text-[9px] font-mono uppercase tracking-wider ${tagColor}`}>{tag}</span>
                 </div>
-                <span className="text-[9px] text-green-400/80 font-mono uppercase tracking-wider">Live</span>
-              </div>
-              <div className="flex items-center justify-between glass px-3 py-2 rounded-sm">
-                <div className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#F7931A]" />
-                  <span className="text-[11px] font-mono text-white/60">RSK Testnet</span>
-                </div>
-                <span className="text-[9px] text-[#F7931A]/80 font-mono uppercase tracking-wider">Live</span>
-              </div>
+              ))}
             </div>
           </div>
 

@@ -18,6 +18,23 @@ const queryClient = new QueryClient();
 
 const BASE = import.meta.env.BASE_URL?.replace(/\/$/, "") || "";
 
+// ── Mainnets ────────────────────────────────────────────────────────────────
+const celoMainnet = {
+  id: 42220,
+  name: 'Celo',
+  nativeCurrency: { name: 'CELO', symbol: 'CELO', decimals: 18 },
+  rpcUrls: { default: { http: ['https://forno.celo.org'] } },
+  blockExplorers: { default: { name: 'Celoscan', url: 'https://celoscan.io' } },
+};
+const rskMainnet = {
+  id: 30,
+  name: 'Rootstock',
+  nativeCurrency: { name: 'rBTC', symbol: 'rBTC', decimals: 18 },
+  rpcUrls: { default: { http: ['https://public-node.rsk.co'] } },
+  blockExplorers: { default: { name: 'RSK Explorer', url: 'https://explorer.rsk.co' } },
+};
+
+// ── Testnets (used for Vocdoni governance voting) ───────────────────────────
 const celoSepolia = {
   id: 11142220,
   name: 'Celo Sepolia',
@@ -55,8 +72,8 @@ function App() {
     <PrivyProvider
       appId={appId}
       config={{
-        defaultChain: rskTestnet,
-        supportedChains: [rskTestnet, celoSepolia],
+        defaultChain: rskMainnet,
+        supportedChains: [rskMainnet, celoMainnet, rskTestnet, celoSepolia],
         loginMethods: ['email', 'twitter', 'wallet'],
         appearance: {
           theme: 'dark',
