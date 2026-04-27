@@ -74,8 +74,6 @@ function UserDropdown({ onClose, onLogout }: { onClose: () => void; onLogout: ()
   const twitterUsername = (user as any)?.twitter?.username as string | undefined;
   const email = user?.email?.address;
   const shortAddress = address ? `${address.slice(0, 6)}…${address.slice(-4)}` : "";
-  const isEmbeddedWallet = (user?.wallet as any)?.walletClientType === "privy";
-
   const copy = () => {
     if (!address) return;
     navigator.clipboard.writeText(address);
@@ -109,8 +107,8 @@ function UserDropdown({ onClose, onLogout }: { onClose: () => void; onLogout: ()
           </button>
         )}
 
-        {/* Wallet backup — only for frictionless embedded wallets */}
-        {isEmbeddedWallet && address && (
+        {/* Wallet backup — always available when a wallet address exists */}
+        {address && (
           <>
             <div className="border-t border-white/8 my-1" />
             <div className="px-3 py-1">
@@ -285,8 +283,6 @@ function UserPanel({ onLogout }: { onLogout: () => void }) {
   const shortAddress = walletAddress
     ? `${walletAddress.slice(0, 6)}…${walletAddress.slice(-4)}`
     : "";
-  const isEmbeddedWallet = (user?.wallet as any)?.walletClientType === "privy";
-
   const copy = () => {
     if (!walletAddress) return;
     navigator.clipboard.writeText(walletAddress);
@@ -344,8 +340,8 @@ function UserPanel({ onLogout }: { onLogout: () => void }) {
             </div>
           )}
 
-          {/* Wallet backup — only for frictionless embedded wallets */}
-          {isEmbeddedWallet && walletAddress && (
+          {/* Wallet backup — always available when a wallet address exists */}
+          {walletAddress && (
             <>
               <div className="border-t border-white/8 pt-1.5">
                 <p className="text-[8px] uppercase tracking-widest text-white/25 font-mono mb-1.5 px-1">Wallet backup</p>
