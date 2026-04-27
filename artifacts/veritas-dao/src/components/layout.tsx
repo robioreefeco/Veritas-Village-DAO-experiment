@@ -159,20 +159,17 @@ function TopBar() {
           </button>
         ) : (
           <button
-            onClick={() => setOpen(o => !o)}
+            onClick={() => login()}
             className="flex items-center gap-2 px-4 py-2 rounded-sm font-bold text-[11px] uppercase tracking-widest text-white transition-opacity hover:opacity-90"
             style={{ background: "linear-gradient(135deg, #2D5A3A, #F7931A)" }}
           >
             <Wallet className="h-3.5 w-3.5" />
-            Sign In
-            <ChevronDown className={`h-3 w-3 transition-transform ${open ? "rotate-180" : ""}`} />
+            Log In
           </button>
         )}
 
-        {open && (
-          authenticated
-            ? <UserDropdown onClose={() => setOpen(false)} onLogout={logout} />
-            : <LoginDropdown onClose={() => setOpen(false)} />
+        {open && authenticated && (
+          <UserDropdown onClose={() => setOpen(false)} onLogout={logout} />
         )}
       </div>
     </div>
@@ -437,7 +434,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 style={{ background: "linear-gradient(135deg, #2D5A3A, #F7931A)" }}
                 onClick={() => login()}
               >
-                Sign In
+                Log In
               </Button>
             )}
             <Button
