@@ -590,6 +590,17 @@ export default function Bridge() {
         </p>
       </div>
 
+      {/* Testnet notice */}
+      <div className="flex items-start gap-3 rounded-sm px-4 py-3 border border-yellow-500/25 bg-yellow-500/8">
+        <AlertCircle className="h-4 w-4 text-yellow-400 shrink-0 mt-0.5" />
+        <div className="space-y-0.5">
+          <p className="text-[11px] font-bold uppercase tracking-widest text-yellow-300">Testnet mode — no cross-chain swaps</p>
+          <p className="text-[10px] font-mono text-yellow-200/60 leading-relaxed">
+            Squid Router does not support RSK Testnet ↔ Celo Sepolia swaps. Use the <span className="text-yellow-300 font-bold">Faucets</span> tab to get free testnet tokens on each chain separately.
+          </p>
+        </div>
+      </div>
+
       {/* Chain status bar */}
       <div className="grid grid-cols-2 gap-3">
         {(["rsk", "celo"] as ChainKey[]).map((key) => {
