@@ -360,7 +360,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
     { href: "/", label: "Dashboard", icon: <LayoutDashboard className="h-4 w-4" /> },
     { href: "/proposals", label: "Proposals", icon: <Shield className="h-4 w-4" /> },
     { href: "/admin", label: "Create Proposal", icon: <PlusCircle className="h-4 w-4" /> },
-    { href: "/bridge", label: "Bridge", icon: <ArrowRightLeft className="h-4 w-4" /> },
+    { href: "/swap", label: "Swap", icon: <ArrowRightLeft className="h-4 w-4" /> },
+    { href: "/bridge", label: "Bridge", icon: <Bitcoin className="h-4 w-4" /> },
   ];
 
   const isActive = (href: string) =>
