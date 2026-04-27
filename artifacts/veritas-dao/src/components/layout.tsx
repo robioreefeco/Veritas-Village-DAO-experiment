@@ -4,7 +4,7 @@ import { usePrivy } from "@privy-io/react-auth";
 import {
   LayoutDashboard, Shield, Wallet, Menu, PlusCircle, Globe, X,
   ExternalLink, ArrowRightLeft, Mail, LogOut, ChevronDown, ChevronUp, Copy, CheckCircle2,
-  Bitcoin,
+  Bitcoin, CreditCard,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -352,6 +352,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
     { href: "/admin", label: "Create Proposal", icon: <PlusCircle className="h-4 w-4" /> },
     { href: "/swap", label: "Swap", icon: <ArrowRightLeft className="h-4 w-4" /> },
     { href: "/bridge", label: "Bridge", icon: <Bitcoin className="h-4 w-4" /> },
+    { href: "/pay", label: "Pay", icon: <CreditCard className="h-4 w-4" /> },
   ];
 
   const isActive = (href: string) =>
