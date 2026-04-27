@@ -4,7 +4,7 @@ import { usePrivy } from "@privy-io/react-auth";
 import {
   LayoutDashboard, Shield, Wallet, Menu, PlusCircle, Globe, X,
   ExternalLink, ArrowRightLeft, Mail, LogOut, ChevronDown, ChevronUp, Copy, CheckCircle2,
-  Bitcoin,
+  Bitcoin, ShieldCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -68,12 +68,13 @@ function LoginDropdown({ onClose }: { onClose: () => void }) {
 }
 
 function UserDropdown({ onClose, onLogout }: { onClose: () => void; onLogout: () => void }) {
-  const { user } = usePrivy();
+  const { user, exportWallet } = usePrivy();
   const [copied, setCopied] = useState(false);
   const address = user?.wallet?.address ?? "";
   const twitterUsername = (user as any)?.twitter?.username as string | undefined;
   const email = user?.email?.address;
   const shortAddress = address ? `${address.slice(0, 6)}…${address.slice(-4)}` : "";
+  const isEmbeddedWallet = (user?.wallet as any)?.walletClientType === "privy";
 
   const copy = () => {
     if (!address) return;
@@ -107,6 +108,30 @@ function UserDropdown({ onClose, onLogout }: { onClose: () => void; onLogout: ()
               : <Copy className="h-3 w-3 text-white/20 group-hover:text-white/50 shrink-0" />}
           </button>
         )}
+
+        {/* Wallet backup — only for frictionless embedded wallets */}
+        {isEmbeddedWallet && address && (
+          <>
+            <div className="border-t border-white/8 my-1" />
+            <div className="px-3 py-1">
+              <p className="text-[8px] uppercase tracking-widest text-white/25 font-mono mb-1.5">Wallet backup</p>
+              <button
+                onClick={async () => { await exportWallet({ address }); onClose(); }}
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-sm bg-[#2D5A3A]/20 hover:bg-[#2D5A3A]/35 border border-[#2D5A3A]/30 hover:border-[#2D5A3A]/60 transition-all group"
+              >
+                <ShieldCheck className="h-3.5 w-3.5 text-[#4CAF72] shrink-0" />
+                <span className="text-[10px] font-mono uppercase tracking-widest text-[#4CAF72]/80 group-hover:text-[#4CAF72]">
+                  Export private key
+                </span>
+              </button>
+              <p className="text-[8px] font-mono text-white/20 mt-1.5 leading-relaxed px-0.5">
+                Save your key securely to access your wallet independently of this app.
+              </p>
+            </div>
+          </>
+        )}
+
+        <div className="border-t border-white/8 my-1" />
         <button onClick={() => { onLogout(); onClose(); }}
           className="w-full flex items-center gap-2 px-3 py-2 rounded-sm text-red-400/70 hover:text-red-400 hover:bg-red-500/10 transition-colors">
           <LogOut className="h-3.5 w-3.5 shrink-0" />
@@ -137,41 +162,54 @@ function TopBar() {
   }, [open]);
 
   return (
-    <div className="hidden md:flex items-center justify-end px-6 py-3 border-b border-white/8 sidebar-glass shrink-0">
-      <div className="relative" ref={ref}>
-        {authenticated ? (
-          <button
-            onClick={() => setOpen(o => !o)}
-            className="flex items-center gap-2.5 px-3 py-2 glass rounded-sm border border-white/10 hover:border-[#F7931A]/30 transition-colors group"
-          >
-            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#2D5A3A] to-[#F7931A] flex items-center justify-center shrink-0">
-              {twitterUsername
-                ? <XIcon className="h-3 w-3 text-white" />
-                : email
-                  ? <Mail className="h-3 w-3 text-white" />
-                  : <Wallet className="h-3 w-3 text-white" />}
-            </div>
-            <span className="text-[11px] font-mono text-white/70 group-hover:text-white transition-colors max-w-[120px] truncate">
-              {displayName}
-            </span>
-            <span className="w-1.5 h-1.5 rounded-full bg-green-400 shrink-0" />
-            <ChevronDown className={`h-3 w-3 text-white/30 shrink-0 transition-transform ${open ? "rotate-180" : ""}`} />
-          </button>
-        ) : (
-          <button
-            onClick={() => login()}
-            className="flex items-center gap-2 px-4 py-2 rounded-sm font-bold text-[11px] uppercase tracking-widest text-white transition-opacity hover:opacity-90"
-            style={{ background: "linear-gradient(135deg, #2D5A3A, #F7931A)" }}
-          >
-            <Wallet className="h-3.5 w-3.5" />
-            Log In
-          </button>
-        )}
+    <div className="hidden md:flex items-center justify-end gap-2 px-6 py-3 border-b border-white/8 sidebar-glass shrink-0">
+      {authenticated ? (
+        /* ── Authenticated: user chip + quick logout ── */
+        <div className="flex items-center gap-2">
+          <div className="relative" ref={ref}>
+            <button
+              onClick={() => setOpen(o => !o)}
+              className="flex items-center gap-2.5 px-3 py-2 glass rounded-sm border border-white/10 hover:border-[#F7931A]/30 transition-colors group"
+            >
+              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#2D5A3A] to-[#F7931A] flex items-center justify-center shrink-0">
+                {twitterUsername
+                  ? <XIcon className="h-3 w-3 text-white" />
+                  : email
+                    ? <Mail className="h-3 w-3 text-white" />
+                    : <Wallet className="h-3 w-3 text-white" />}
+              </div>
+              <span className="text-[11px] font-mono text-white/70 group-hover:text-white transition-colors max-w-[120px] truncate">
+                {displayName}
+              </span>
+              <span className="w-1.5 h-1.5 rounded-full bg-green-400 shrink-0" />
+              <ChevronDown className={`h-3 w-3 text-white/30 shrink-0 transition-transform ${open ? "rotate-180" : ""}`} />
+            </button>
+            {open && (
+              <UserDropdown onClose={() => setOpen(false)} onLogout={logout} />
+            )}
+          </div>
 
-        {open && authenticated && (
-          <UserDropdown onClose={() => setOpen(false)} onLogout={logout} />
-        )}
-      </div>
+          {/* Quick one-click logout button */}
+          <button
+            onClick={() => logout()}
+            title="Log out"
+            className="flex items-center gap-1.5 px-3 py-2 glass rounded-sm border border-white/8 hover:border-red-500/30 hover:bg-red-500/8 text-white/35 hover:text-red-400 transition-all group"
+          >
+            <LogOut className="h-3.5 w-3.5 shrink-0" />
+            <span className="text-[10px] font-mono uppercase tracking-widest hidden lg:inline">Log out</span>
+          </button>
+        </div>
+      ) : (
+        /* ── Unauthenticated: login button ── */
+        <button
+          onClick={() => login()}
+          className="flex items-center gap-2 px-4 py-2 rounded-sm font-bold text-[11px] uppercase tracking-widest text-white transition-opacity hover:opacity-90"
+          style={{ background: "linear-gradient(135deg, #2D5A3A, #F7931A)" }}
+        >
+          <Wallet className="h-3.5 w-3.5" />
+          Log In
+        </button>
+      )}
     </div>
   );
 }
@@ -236,7 +274,7 @@ function LoginMethodButton({
 }
 
 function UserPanel({ onLogout }: { onLogout: () => void }) {
-  const { user } = usePrivy();
+  const { user, exportWallet } = usePrivy();
   const [expanded, setExpanded] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -247,6 +285,7 @@ function UserPanel({ onLogout }: { onLogout: () => void }) {
   const shortAddress = walletAddress
     ? `${walletAddress.slice(0, 6)}…${walletAddress.slice(-4)}`
     : "";
+  const isEmbeddedWallet = (user?.wallet as any)?.walletClientType === "privy";
 
   const copy = () => {
     if (!walletAddress) return;
@@ -304,6 +343,26 @@ function UserPanel({ onLogout }: { onLogout: () => void }) {
               <span className="font-mono text-[10px] text-white/60 truncate">{email}</span>
             </div>
           )}
+
+          {/* Wallet backup — only for frictionless embedded wallets */}
+          {isEmbeddedWallet && walletAddress && (
+            <>
+              <div className="border-t border-white/8 pt-1.5">
+                <p className="text-[8px] uppercase tracking-widest text-white/25 font-mono mb-1.5 px-1">Wallet backup</p>
+                <button
+                  onClick={async () => { await exportWallet({ address: walletAddress }); }}
+                  className="w-full flex items-center gap-2 px-3 py-2 rounded-sm bg-[#2D5A3A]/20 hover:bg-[#2D5A3A]/35 border border-[#2D5A3A]/30 hover:border-[#2D5A3A]/60 transition-all group"
+                >
+                  <ShieldCheck className="h-3.5 w-3.5 text-[#4CAF72] shrink-0" />
+                  <span className="text-[10px] font-mono uppercase tracking-widest text-[#4CAF72]/80 group-hover:text-[#4CAF72]">Export private key</span>
+                </button>
+                <p className="text-[8px] font-mono text-white/20 mt-1.5 leading-relaxed px-1">
+                  Save your key to access your wallet independently.
+                </p>
+              </div>
+            </>
+          )}
+
           <button onClick={onLogout}
             className="w-full flex items-center gap-2 px-3 py-2 rounded-sm text-red-400/70 hover:text-red-400 hover:bg-red-500/10 transition-colors group">
             <LogOut className="h-3.5 w-3.5 shrink-0" />
