@@ -60,15 +60,8 @@ function LoginDropdown({ onClose }: { onClose: () => void }) {
   return (
     <div className="absolute right-0 top-full mt-2 w-72 z-50 glass border border-white/12 rounded-sm shadow-2xl overflow-hidden">
       <div className="p-3 space-y-1">
-        <p className="text-[9px] uppercase tracking-widest font-mono text-white/30 px-1 pb-1.5">Social</p>
         <LoginMethodButton onClick={handle} icon={<XIcon className="h-4 w-4 text-white" />} label="Twitter / X" sublabel="Connect your X account" />
         <LoginMethodButton onClick={handle} icon={<Mail className="h-4 w-4 text-white/70" />} label="Email" sublabel="Magic link — no password" />
-      </div>
-      <div className="px-3 pb-3 space-y-1 border-t border-white/8 pt-2.5">
-        <p className="text-[9px] uppercase tracking-widest font-mono text-white/30 px-1 pb-1.5">Wallets</p>
-        <LoginMethodButton onClick={handle} icon={<MetaMaskIcon className="h-5 w-5" />} label="MetaMask" sublabel="RSK · Celo · EVM" />
-        <LoginMethodButton onClick={handle} icon={<RabbyIcon className="h-5 w-5" />} label="Rabby" sublabel="Multi-chain · EVM" />
-        <LoginMethodButton onClick={handle} icon={<Bitcoin className="h-5 w-5 text-[#F7931A]" />} label="Bitcoin / RSK" sublabel="Via Rootstock sidechain" />
       </div>
     </div>
   );
