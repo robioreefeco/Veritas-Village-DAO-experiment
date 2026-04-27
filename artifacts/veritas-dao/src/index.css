@@ -150,17 +150,29 @@
   * {
     @apply border-border;
   }
+  html, body, #root {
+    height: 100%;
+  }
   body {
-    @apply font-mono antialiased bg-background text-foreground;
+    @apply font-mono antialiased text-foreground;
+    background: transparent;
   }
 }
 
 @layer utilities {
+  /* Sidebar / topbar — deeper dark glass so it stands out from the bg image */
+  .sidebar-glass {
+    backdrop-filter: blur(24px) saturate(160%);
+    -webkit-backdrop-filter: blur(24px) saturate(160%);
+    background: rgba(4, 12, 8, 0.72);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
   .glass {
     backdrop-filter: blur(16px) saturate(180%);
     -webkit-backdrop-filter: blur(16px) saturate(180%);
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(8, 20, 14, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.10);
   }
 
   .glass-terra {

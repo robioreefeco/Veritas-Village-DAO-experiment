@@ -137,7 +137,7 @@ function TopBar() {
   }, [open]);
 
   return (
-    <div className="hidden md:flex items-center justify-end px-6 py-3 border-b border-white/8 bg-card/80 backdrop-blur-sm shrink-0">
+    <div className="hidden md:flex items-center justify-end px-6 py-3 border-b border-white/8 sidebar-glass shrink-0">
       <div className="relative" ref={ref}>
         {authenticated ? (
           <button
@@ -418,13 +418,35 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <div className="min-h-screen flex w-full bg-background selection:bg-primary selection:text-primary-foreground">
-      <aside className="hidden md:flex flex-col w-60 border-r border-white/10 bg-card shrink-0 h-screen sticky top-0">
+    <div className="min-h-screen flex w-full selection:bg-primary selection:text-primary-foreground relative">
+
+      {/* ── Fixed background: village image + layered dark overlays ── */}
+      <div
+        className="fixed inset-0 z-0 pointer-events-none"
+        style={{
+          backgroundImage: `url(${BASE}/veritas-bg.jpg)`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundAttachment: "fixed",
+        }}
+      />
+      {/* Dark gradient overlay — preserves image warmth, ensures UI contrast */}
+      <div
+        className="fixed inset-0 z-0 pointer-events-none"
+        style={{
+          background:
+            "linear-gradient(135deg, rgba(5,14,10,0.88) 0%, rgba(8,20,14,0.80) 40%, rgba(10,16,8,0.85) 100%)",
+        }}
+      />
+
+      {/* ── Desktop sidebar ── */}
+      <aside className="hidden md:flex flex-col w-60 border-r border-white/8 shrink-0 h-screen sticky top-0 z-10 sidebar-glass">
         <SidebarContent />
       </aside>
 
-      <div className="md:hidden flex flex-col w-full min-h-screen">
-        <header className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-card shrink-0">
+      {/* ── Mobile layout ── */}
+      <div className="md:hidden flex flex-col w-full min-h-screen relative z-10">
+        <header className="flex items-center justify-between px-4 py-3 border-b border-white/10 shrink-0 sidebar-glass">
           <VeritasLogo className="h-10 w-auto object-contain" />
           <div className="flex items-center gap-2">
             {!authenticated && (
@@ -451,20 +473,21 @@ export function Layout({ children }: { children: React.ReactNode }) {
         {isMobileMenuOpen && (
           <div className="fixed inset-0 z-50 flex">
             <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setIsMobileMenuOpen(false)} />
-            <aside className="relative flex flex-col w-72 bg-card border-r border-white/10 z-10 overflow-y-auto">
+            <aside className="relative flex flex-col w-72 border-r border-white/10 z-10 overflow-y-auto sidebar-glass">
               <SidebarContent />
             </aside>
           </div>
         )}
 
-        <main className="flex-1 overflow-y-auto bg-background p-4">
+        <main className="flex-1 overflow-y-auto p-4">
           <div className="max-w-4xl mx-auto space-y-6">{children}</div>
         </main>
       </div>
 
-      <div className="hidden md:flex flex-col flex-1 min-h-0">
+      {/* ── Desktop main panel ── */}
+      <div className="hidden md:flex flex-col flex-1 min-h-0 relative z-10">
         <TopBar />
-        <main className="flex-1 overflow-y-auto bg-background p-6 lg:p-10">
+        <main className="flex-1 overflow-y-auto p-6 lg:p-10">
           <div className="max-w-5xl mx-auto space-y-8">{children}</div>
         </main>
       </div>
