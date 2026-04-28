@@ -51,6 +51,52 @@ function RabbyIcon({ className }: { className?: string }) {
   );
 }
 
+function GoogleIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+    </svg>
+  );
+}
+
+function RainbowIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 120 120" fill="none">
+      <rect width="120" height="120" rx="28" fill="url(#rw-bg)"/>
+      <path d="M20 80c0-22.1 17.9-40 40-40s40 17.9 40 40" stroke="url(#rw-red)" strokeWidth="12" strokeLinecap="round" fill="none"/>
+      <path d="M30 80c0-16.6 13.4-30 30-30s30 13.4 30 30" stroke="url(#rw-or)" strokeWidth="12" strokeLinecap="round" fill="none"/>
+      <path d="M40 80c0-11 9-20 20-20s20 9 20 20" stroke="#FFF176" strokeWidth="12" strokeLinecap="round" fill="none"/>
+      <path d="M50 80c0-5.5 4.5-10 10-10s10 4.5 10 10" stroke="#A5D6A7" strokeWidth="12" strokeLinecap="round" fill="none"/>
+      <defs>
+        <linearGradient id="rw-bg" x1="0" y1="0" x2="120" y2="120" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#1E1B4B"/>
+          <stop offset="1" stopColor="#312E81"/>
+        </linearGradient>
+        <linearGradient id="rw-red" x1="20" y1="80" x2="100" y2="80" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#FF6B6B"/>
+          <stop offset="1" stopColor="#FF8E53"/>
+        </linearGradient>
+        <linearGradient id="rw-or" x1="30" y1="80" x2="90" y2="80" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#FFB347"/>
+          <stop offset="1" stopColor="#FFCC02"/>
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+}
+
+function WalletConnectIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 32 32" fill="none">
+      <rect width="32" height="32" rx="8" fill="#3B99FC"/>
+      <path d="M9.6 13.5c3.5-3.5 9.3-3.5 12.8 0l.4.4c.2.2.2.5 0 .7l-1.4 1.4c-.1.1-.3.1-.4 0l-.6-.6c-2.5-2.5-6.5-2.5-8.9 0l-.6.6c-.1.1-.3.1-.4 0L9.1 14.6c-.2-.2-.2-.5 0-.7l.5-.4zm15.8 2.9l1.2 1.2c.2.2.2.5 0 .7l-5.6 5.6c-.2.2-.5.2-.7 0l-3.9-3.9c-.1-.1-.2-.1-.3 0l-3.9 3.9c-.2.2-.5.2-.7 0L5.9 18.3c-.2-.2-.2-.5 0-.7l1.2-1.2c.2-.2.5-.2.7 0l3.9 3.9c.1.1.2.1.3 0l3.9-3.9c.2-.2.5-.2.7 0l3.9 3.9c.1.1.2.1.3 0l3.9-3.9c.2-.2.5-.2.7 0z" fill="white"/>
+    </svg>
+  );
+}
+
 // ─── TopBar Login Dropdown ───────────────────────────────────────────────────────
 function LoginDropdown({ onClose }: { onClose: () => void }) {
   const { login } = usePrivy();
@@ -60,8 +106,24 @@ function LoginDropdown({ onClose }: { onClose: () => void }) {
   return (
     <div className="absolute right-0 top-full mt-2 w-72 z-50 glass border border-white/12 rounded-sm shadow-2xl overflow-hidden">
       <div className="p-3 space-y-1">
+        <p className="text-[8px] uppercase tracking-widest text-white/25 font-mono px-1 pb-1">Social login</p>
         <LoginMethodButton onClick={handle} icon={<XIcon className="h-4 w-4 text-white" />} label="Twitter / X" sublabel="Connect your X account" />
+        <LoginMethodButton onClick={handle} icon={<GoogleIcon className="h-4 w-4" />} label="Google / Gmail" sublabel="Continue with your Google account" />
         <LoginMethodButton onClick={handle} icon={<Mail className="h-4 w-4 text-white/70" />} label="Email" sublabel="Magic link — no password" />
+        <div className="border-t border-white/8 my-1" />
+        <p className="text-[8px] uppercase tracking-widest text-white/25 font-mono px-1 pt-1 pb-1">Crypto wallet</p>
+        <LoginMethodButton
+          onClick={handle}
+          icon={
+            <div className="flex items-center gap-0.5">
+              <RainbowIcon className="h-4 w-4" />
+              <RabbyIcon className="h-3.5 w-3.5" />
+            </div>
+          }
+          label="Rainbow / Rabby"
+          sublabel="Connect an existing wallet"
+        />
+        <LoginMethodButton onClick={handle} icon={<WalletConnectIcon className="h-4 w-4" />} label="WalletConnect" sublabel="Any wallet via QR code" />
       </div>
     </div>
   );
@@ -72,6 +134,7 @@ function UserDropdown({ onClose, onLogout }: { onClose: () => void; onLogout: ()
   const [copied, setCopied] = useState(false);
   const address = user?.wallet?.address ?? "";
   const twitterUsername = (user as any)?.twitter?.username as string | undefined;
+  const googleEmail = (user as any)?.google?.email as string | undefined;
   const email = user?.email?.address;
   const shortAddress = address ? `${address.slice(0, 6)}…${address.slice(-4)}` : "";
   const copy = () => {
@@ -88,6 +151,12 @@ function UserDropdown({ onClose, onLogout }: { onClose: () => void; onLogout: ()
           <div className="flex items-center gap-2 px-3 py-2 rounded-sm bg-white/5">
             <XIcon className="h-3 w-3 text-white/50 shrink-0" />
             <span className="font-mono text-[10px] text-white/60">@{twitterUsername}</span>
+          </div>
+        )}
+        {googleEmail && (
+          <div className="flex items-center gap-2 px-3 py-2 rounded-sm bg-white/5">
+            <GoogleIcon className="h-3 w-3 shrink-0" />
+            <span className="font-mono text-[10px] text-white/60 truncate">{googleEmail}</span>
           </div>
         )}
         {email && (
@@ -115,6 +184,7 @@ function UserDropdown({ onClose, onLogout }: { onClose: () => void; onLogout: ()
               <SocialKeyRecovery
                 address={address}
                 twitterUsername={twitterUsername}
+                googleEmail={googleEmail}
                 email={email}
                 compact
               />
@@ -244,11 +314,13 @@ function PoweredBy() {
 function SocialKeyRecovery({
   address,
   twitterUsername,
+  googleEmail,
   email,
   compact = false,
 }: {
   address: string;
   twitterUsername?: string;
+  googleEmail?: string;
   email?: string;
   compact?: boolean;
 }) {
@@ -258,9 +330,13 @@ function SocialKeyRecovery({
 
   const socialLabel = twitterUsername
     ? `@${twitterUsername} (X / Twitter)`
+    : googleEmail
+    ? googleEmail + " (Google)"
     : email ?? "your social account";
   const socialIcon = twitterUsername
     ? <XIcon className="h-3 w-3 text-white/60" />
+    : googleEmail
+    ? <GoogleIcon className="h-3 w-3" />
     : <Mail className="h-3 w-3 text-white/60" />;
 
   const handleExport = async () => {
@@ -393,7 +469,8 @@ function UserPanel({ onLogout }: { onLogout: () => void }) {
   const walletAddress = user?.wallet?.address;
   const email = user?.email?.address;
   const twitterUsername = (user as any)?.twitter?.username;
-  const displayName = twitterUsername ? `@${twitterUsername}` : email ?? "";
+  const googleEmail = (user as any)?.google?.email as string | undefined;
+  const displayName = twitterUsername ? `@${twitterUsername}` : googleEmail ?? email ?? "";
   const shortAddress = walletAddress
     ? `${walletAddress.slice(0, 6)}…${walletAddress.slice(-4)}`
     : "";
@@ -412,6 +489,7 @@ function UserPanel({ onLogout }: { onLogout: () => void }) {
       >
         <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#2D5A3A] to-[#F7931A] flex items-center justify-center shrink-0 text-white text-[10px] font-bold">
           {twitterUsername ? <XIcon className="h-3.5 w-3.5 text-white" />
+            : googleEmail ? <GoogleIcon className="h-3.5 w-3.5" />
             : email ? <Mail className="h-3.5 w-3.5 text-white" />
             : <Wallet className="h-3.5 w-3.5 text-white" />}
         </div>
@@ -447,6 +525,12 @@ function UserPanel({ onLogout }: { onLogout: () => void }) {
               <span className="font-mono text-[10px] text-white/60">@{twitterUsername}</span>
             </div>
           )}
+          {googleEmail && (
+            <div className="flex items-center gap-2 px-3 py-2 rounded-sm bg-white/5">
+              <GoogleIcon className="h-3 w-3 shrink-0" />
+              <span className="font-mono text-[10px] text-white/60 truncate">{googleEmail}</span>
+            </div>
+          )}
           {email && (
             <div className="flex items-center gap-2 px-3 py-2 rounded-sm bg-white/5">
               <Mail className="h-3 w-3 text-white/50 shrink-0" />
@@ -460,6 +544,7 @@ function UserPanel({ onLogout }: { onLogout: () => void }) {
               <SocialKeyRecovery
                 address={walletAddress}
                 twitterUsername={twitterUsername}
+                googleEmail={googleEmail}
                 email={email}
               />
             </div>
@@ -479,13 +564,20 @@ function UserPanel({ onLogout }: { onLogout: () => void }) {
 function SignInPanel({ onLogin }: { onLogin: () => void }) {
   return (
     <div className="p-3 border-t border-white/10 space-y-3">
-      <p className="text-[9px] uppercase tracking-widest text-white/30 font-mono px-1">Sign in to vote</p>
+      {/* Social logins */}
       <div className="space-y-1.5">
+        <p className="text-[8px] uppercase tracking-widest text-white/25 font-mono px-1">Social login</p>
         <LoginMethodButton
           onClick={onLogin}
           icon={<XIcon className="h-4 w-4 text-white" />}
           label="Twitter / X"
           sublabel="Connect your X account"
+        />
+        <LoginMethodButton
+          onClick={onLogin}
+          icon={<GoogleIcon className="h-4 w-4" />}
+          label="Google / Gmail"
+          sublabel="Continue with your Google account"
         />
         <LoginMethodButton
           onClick={onLogin}
@@ -495,7 +587,30 @@ function SignInPanel({ onLogin }: { onLogin: () => void }) {
         />
       </div>
 
-      {/* Social recovery info for returning users */}
+      {/* Crypto wallet logins */}
+      <div className="space-y-1.5">
+        <p className="text-[8px] uppercase tracking-widest text-white/25 font-mono px-1">Crypto wallet</p>
+        <LoginMethodButton
+          onClick={onLogin}
+          icon={<RainbowIcon className="h-5 w-5" />}
+          label="Rainbow Wallet"
+          sublabel="Mobile-first multichain wallet"
+        />
+        <LoginMethodButton
+          onClick={onLogin}
+          icon={<RabbyIcon className="h-4 w-4" />}
+          label="Rabby Wallet"
+          sublabel="Security-focused EVM wallet"
+        />
+        <LoginMethodButton
+          onClick={onLogin}
+          icon={<WalletConnectIcon className="h-4 w-4" />}
+          label="WalletConnect"
+          sublabel="Any wallet via QR code"
+        />
+      </div>
+
+      {/* Social key recovery hint */}
       <div className="rounded-sm border border-[#F7931A]/12 bg-[#F7931A]/4 px-3 py-2.5 space-y-1.5">
         <div className="flex items-center gap-1.5">
           <KeyRound className="h-3 w-3 text-[#F7931A]/60 shrink-0" />
