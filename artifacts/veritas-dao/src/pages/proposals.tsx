@@ -5,10 +5,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { FileText, Filter, LayoutGrid, List } from "lucide-react";
-import { ProposalChain } from "@workspace/api-zod";
+import { FileText, Filter, LayoutGrid, List, MapPin, PlusCircle } from "lucide-react";
+import { useApp } from "@/context/AppContext";
 
 export default function Proposals() {
+  const { selectedCommunity } = useApp();
   const [chainFilter, setChainFilter] = useState<"all" | "celo" | "rsk">("all");
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
 
@@ -21,6 +22,14 @@ export default function Proposals() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight uppercase">Proposals</h1>
           <p className="text-muted-foreground mt-1 font-mono text-sm">Active and historical governance motions.</p>
+          {selectedCommunity && (
+            <div className="flex items-center gap-1.5 mt-2">
+              <span className="text-base leading-none">{selectedCommunity.flag}</span>
+              <span className="text-[10px] font-mono text-white/40">
+                Viewing as member of <span className="text-[#F7931A]">{selectedCommunity.name}</span>
+              </span>
+            </div>
+          )}
         </div>
         
         <div className="flex items-center gap-2">

@@ -3,50 +3,13 @@ import { useGetDashboardStats, useGetChainActivity, useListProposals } from "@wo
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Activity, CheckCircle2, ChevronRight, Layers, Users,
-  MapPin, ExternalLink, Bitcoin, Vote, ShieldCheck, Zap
+  MapPin, ExternalLink, Bitcoin, Vote, ShieldCheck, Zap,
+  ArrowRight, LogIn, Wallet, Droplets,
 } from "lucide-react";
 import { Link } from "wouter";
 import { Badge } from "@/components/ui/badge";
-
-// ─── Real Veritas Villages community data ────────────────────────────────────
-const COMMUNITIES = [
-  {
-    name: "Playa Pacifica",
-    country: "Nicaragua",
-    flag: "🇳🇮",
-    status: "active" as const,
-    description: "Spanish-style beach neighborhood inside Gran Pacifica Beach & Golf Resort. Year-round surf, golf, horseback riding — the closest gated beachfront community to the international airport.",
-    url: "https://www.veritasvillages.com/playa-pacifica",
-    color: "#2D5A3A",
-  },
-  {
-    name: "Coronado",
-    country: "Panama",
-    flag: "🇵🇦",
-    status: "active" as const,
-    description: "Nestled in the hills near Coronado, designed for food security, natural water access, and luxury off-grid living — minutes from beaches, restaurants, and services.",
-    url: "https://www.veritasvillages.com/coronado",
-    color: "#F7931A",
-  },
-  {
-    name: "Chiriquí",
-    country: "Panama",
-    flag: "🇵🇦",
-    status: "active" as const,
-    description: "A smaller, more intimate community near Boquete and the Costa Rica border. Perfect for peace, self-sufficiency, and a close-knit neighborhood feel.",
-    url: "https://www.veritasvillages.com/chiriqui",
-    color: "#2D5A3A",
-  },
-  {
-    name: "Atenas",
-    country: "Costa Rica",
-    flag: "🇨🇷",
-    status: "coming_soon" as const,
-    description: "Our newest location in Costa Rica's Central Valley. Currently in early planning — details on site plans, pricing, and availability will be announced as the project progresses.",
-    url: "https://www.veritasvillages.com/costa-rica-coming-soon",
-    color: "#64B5F6",
-  },
-];
+import { usePrivy } from "@privy-io/react-auth";
+import { useApp } from "@/context/AppContext";
 
 // F.I.R.S.T. principles from the website
 const FIRST_PRINCIPLES = [
@@ -58,16 +21,20 @@ const FIRST_PRINCIPLES = [
 ];
 
 export default function Dashboard() {
+  const { authenticated, login } = usePrivy();
+  const { selectedCommunity, openOnboarding } = useApp();
+
   const { data: stats, isLoading: statsLoading } = useGetDashboardStats();
   const { data: activity, isLoading: activityLoading } = useGetChainActivity();
   const { data: proposals, isLoading: proposalsLoading } = useListProposals({ chain: "all" });
 
-  const activeProposals = proposals?.filter((p) => p.status === "active")?.slice(0, 4) || [];
+  const activeProposals = proposals?.filter((p) => p.status === "active") || [];
+  const dashboardProposals = activeProposals.slice(0, 4);
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
 
-      {/* Hero Banner — real tagline from veritasvillages.com */}
+      {/* Hero Banner */}
       <div className="relative overflow-hidden rounded-sm glass-terra p-6 border border-[#2D5A3A]/50">
         <div className="absolute inset-0 opacity-10"
           style={{ background: "radial-gradient(ellipse at 70% 50%, #F7931A 0%, transparent 60%)" }} />
@@ -85,7 +52,6 @@ export default function Dashboard() {
           <p className="text-white/50 mt-1 font-mono text-xs max-w-xl">
             Intentional off-grid communities across Nicaragua, Panama and Costa Rica — governed on-chain by residents via Bitcoin-secured voting. No HOA boards. No hidden rules. Every resident has a vote.
           </p>
-          {/* Real metrics */}
           <div className="flex flex-wrap gap-3 mt-4">
             <div className="flex items-center gap-2 glass px-3 py-1.5 rounded-sm">
               <MapPin className="h-3.5 w-3.5 text-green-400" />
@@ -112,7 +78,86 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* DAO Stats Grid — live data */}
+      {/* ── User Journey CTA ─────────────────────────────────────────────────── */}
+      {!authenticated ? (
+        /* Unauthenticated: Join CTA */
+        <div className="glass rounded-sm p-5 border border-[#F7931A]/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="text-[10px] font-mono uppercase tracking-widest text-[#F7931A]">Get started</div>
+            <h3 className="text-white font-bold">Join the Veritas Villages DAO</h3>
+            <p className="text-xs font-mono text-white/40 max-w-sm">
+              Connect a wallet or use social login to participate in governance, vote on proposals, and manage your community.
+            </p>
+          </div>
+          <div className="flex flex-col gap-2 shrink-0 w-full sm:w-auto">
+            <button
+              onClick={() => login()}
+              className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-sm font-bold text-[11px] uppercase tracking-widest text-white"
+              style={{ background: "linear-gradient(135deg, #2D5A3A, #F7931A)" }}
+            >
+              <LogIn className="h-3.5 w-3.5" />
+              Connect &amp; Join
+            </button>
+            <Link href="/proposals">
+              <div className="flex items-center justify-center gap-2 px-5 py-2 rounded-sm font-mono text-[10px] uppercase tracking-widest border border-white/15 text-white/50 hover:text-white hover:border-white/30 transition-colors cursor-pointer">
+                Browse proposals first
+              </div>
+            </Link>
+          </div>
+        </div>
+      ) : !selectedCommunity ? (
+        /* Authenticated but no community selected */
+        <div className="glass rounded-sm p-5 border border-[#2D5A3A]/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="text-[10px] font-mono uppercase tracking-widest text-green-400">Next step</div>
+            <h3 className="text-white font-bold">Select your community</h3>
+            <p className="text-xs font-mono text-white/40 max-w-sm">
+              Choose which Veritas Villages community you belong to so proposals and governance are scoped to your neighborhood.
+            </p>
+          </div>
+          <button
+            onClick={openOnboarding}
+            className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-sm font-bold text-[11px] uppercase tracking-widest text-white shrink-0"
+            style={{ background: "linear-gradient(135deg, #2D5A3A, #F7931A)" }}
+          >
+            Choose community <ArrowRight className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      ) : (
+        /* Authenticated + community selected: Quick actions row */
+        <div className="glass rounded-sm p-4 border border-white/8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl leading-none">{selectedCommunity.flag}</span>
+            <div>
+              <div className="text-[10px] font-mono uppercase tracking-widest text-white/30">Your community</div>
+              <div className="font-bold text-white">{selectedCommunity.name} <span className="text-white/30 font-normal text-xs">· {selectedCommunity.country}</span></div>
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Link href="/proposals">
+              <div className="flex items-center gap-1.5 px-4 py-2 rounded-sm font-mono text-[10px] uppercase tracking-widest cursor-pointer transition-all"
+                style={{ background: "linear-gradient(135deg, #2D5A3A, #F7931A)" }}>
+                <Vote className="h-3.5 w-3.5 text-white" />
+                <span className="text-white font-bold">Vote Now</span>
+              </div>
+            </Link>
+            <Link href={`/workspace/${selectedCommunity.id}`}>
+              <div className="flex items-center gap-1.5 px-4 py-2 rounded-sm font-mono text-[10px] uppercase tracking-widest border border-white/15 text-white/60 hover:text-white hover:border-white/30 transition-colors cursor-pointer">
+                <Layers className="h-3.5 w-3.5" />
+                Regen Space
+              </div>
+            </Link>
+            <Link href="/admin">
+              <div className="flex items-center gap-1.5 px-4 py-2 rounded-sm font-mono text-[10px] uppercase tracking-widest border border-white/15 text-white/60 hover:text-white hover:border-white/30 transition-colors cursor-pointer">
+                <Zap className="h-3.5 w-3.5" />
+                Propose
+              </div>
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {/* DAO Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <StatCard title="Total Proposals" value={stats?.totalProposals}
           icon={<Layers className="h-4 w-4 text-white/40" />} loading={statsLoading} />
@@ -125,117 +170,177 @@ export default function Dashboard() {
           icon={<Users className="h-4 w-4 text-blue-400" />} loading={statsLoading} />
       </div>
 
-      {/* Real Village Communities */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-sm font-bold uppercase tracking-widest text-white/80">Our Communities</h2>
-          <a href="https://www.veritasvillages.com" target="_blank" rel="noreferrer"
-            className="text-[10px] font-mono text-[#F7931A] hover:underline flex items-center gap-1">
-            veritasvillages.com <ExternalLink className="h-3 w-3" />
-          </a>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {COMMUNITIES.map((c) => (
-            <a key={c.name} href={c.url} target="_blank" rel="noreferrer"
-              className="glass rounded-sm p-4 flex flex-col gap-3 hover:bg-white/5 transition-colors group border border-white/5 hover:border-white/10">
-              <div className="flex items-start justify-between">
-                <div>
-                  <span className="text-lg">{c.flag}</span>
-                </div>
-                <Badge
-                  className={`rounded-sm text-[8px] uppercase tracking-widest font-mono px-1.5 py-0.5 border-0 ${
-                    c.status === "active"
-                      ? "bg-green-400/15 text-green-400"
-                      : "bg-blue-400/15 text-blue-400"
-                  }`}>
-                  {c.status === "active" ? "Active" : "Coming Soon"}
-                </Badge>
-              </div>
-              <div>
-                <div className="font-bold text-white text-sm">{c.name}</div>
-                <div className="flex items-center gap-1 mt-0.5">
-                  <MapPin className="h-3 w-3 text-white/25" />
-                  <span className="text-[10px] font-mono text-white/30">{c.country}</span>
-                </div>
-              </div>
-              <p className="text-[10px] font-mono text-white/40 leading-relaxed flex-1">{c.description}</p>
-              <div className="flex items-center gap-1 text-[9px] font-mono text-white/20 group-hover:text-[#F7931A]/60 transition-colors">
-                Learn more <ExternalLink className="h-2.5 w-2.5" />
-              </div>
-            </a>
-          ))}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Active Proposals — live data */}
-        <div className="lg:col-span-2 space-y-4">
+      {/* ── Your Governance Queue (authenticated) ──────────────────────────── */}
+      {authenticated && (
+        <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-bold uppercase tracking-widest text-white/80">Active Proposals</h2>
+            <div className="flex items-center gap-2">
+              <Vote className="h-4 w-4 text-[#F7931A]" />
+              <h2 className="text-sm font-bold uppercase tracking-widest text-white/80">
+                Active Voting Queue
+              </h2>
+              {activeProposals.length > 0 && (
+                <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-[#F7931A]/20 text-[#F7931A] font-bold">
+                  {activeProposals.length} open
+                </span>
+              )}
+            </div>
             <Link href="/proposals" className="text-[10px] font-mono text-[#F7931A] hover:underline flex items-center gap-1">
-              View All <ChevronRight className="h-3 w-3" />
+              All proposals <ChevronRight className="h-3 w-3" />
             </Link>
           </div>
 
-          <div className="space-y-3">
-            {proposalsLoading
-              ? Array(3).fill(0).map((_, i) => <Skeleton key={i} className="h-24 w-full" />)
-              : activeProposals.length > 0
-              ? activeProposals.map((proposal) => {
-                  const total = proposal.yesVotes + proposal.noVotes + proposal.abstainVotes;
-                  const pct = total > 0 ? Math.round((proposal.yesVotes / total) * 100) : 0;
-                  const isCelo = proposal.chain === "celo";
-                  return (
-                    <div key={proposal.id}
-                      className="glass group hover:glass-terra transition-all duration-200 p-4 rounded-sm">
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="space-y-2 flex-1 min-w-0">
-                          <h3 className="font-bold text-sm text-white leading-tight">{proposal.title}</h3>
-                          <div className="flex gap-2 items-center text-[10px] font-mono flex-wrap">
-                            <Badge variant="outline"
-                              className={`rounded-sm uppercase tracking-widest text-[9px] px-2 py-0.5 ${
-                                isCelo
-                                  ? "text-green-400 border-green-400/40 bg-green-400/10"
-                                  : "text-[#F7931A] border-[#F7931A]/40 bg-[#F7931A]/10"
-                              }`}>
-                              {proposal.chain === "celo" ? "Celo" : "RSK"}
-                            </Badge>
-                            <span className="text-white/30">·</span>
-                            <span className="text-white/40">{proposal.census === "rbtc" ? "rBTC census" : "cUSD census"}</span>
-                            {proposal.endsAt && (
-                              <>
-                                <span className="text-white/30">·</span>
-                                <span className="text-white/40">
-                                  Ends {new Date(proposal.endsAt).toLocaleDateString()}
-                                </span>
-                              </>
-                            )}
+          {proposalsLoading ? (
+            <div className="space-y-2">
+              {Array(2).fill(0).map((_, i) => <Skeleton key={i} className="h-16 w-full" />)}
+            </div>
+          ) : activeProposals.length === 0 ? (
+            <div className="glass rounded-sm p-6 text-center border border-white/5">
+              <CheckCircle2 className="h-8 w-8 text-green-400/40 mx-auto mb-2" />
+              <p className="text-white/30 text-sm font-mono">No active proposals right now. You're all caught up.</p>
+              <Link href="/admin">
+                <div className="inline-flex items-center gap-1.5 mt-3 px-4 py-2 rounded-sm font-mono text-[10px] uppercase tracking-widest border border-white/15 text-white/50 hover:text-white hover:border-white/30 transition-colors cursor-pointer">
+                  <Zap className="h-3 w-3" /> Submit a proposal
+                </div>
+              </Link>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {activeProposals.slice(0, 4).map((proposal) => {
+                const total = proposal.yesVotes + proposal.noVotes + proposal.abstainVotes;
+                const pct = total > 0 ? Math.round((proposal.yesVotes / total) * 100) : 0;
+                const isCelo = proposal.chain === "celo";
+                return (
+                  <div key={proposal.id} className="glass group hover:glass-terra transition-all duration-200 p-4 rounded-sm border border-white/5 hover:border-[#F7931A]/20">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0 space-y-1.5">
+                        <h3 className="font-bold text-sm text-white leading-tight truncate">{proposal.title}</h3>
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline"
+                            className={`rounded-sm uppercase tracking-widest text-[8px] px-1.5 py-0 border-0 ${
+                              isCelo ? "text-green-400 bg-green-400/10" : "text-[#F7931A] bg-[#F7931A]/10"
+                            }`}>
+                            {isCelo ? "Celo" : "RSK"}
+                          </Badge>
+                          {proposal.endsAt && (
+                            <span className="text-[9px] font-mono text-white/30">
+                              ends {new Date(proposal.endsAt).toLocaleDateString()}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1 h-1 bg-white/10 rounded-full overflow-hidden">
+                            <div className="h-full rounded-full transition-all duration-500"
+                              style={{ width: `${pct}%`, background: "linear-gradient(90deg, #2D5A3A, #F7931A)" }} />
                           </div>
-                          <div className="flex items-center gap-2">
-                            <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
-                              <div className="h-full rounded-full transition-all duration-500"
-                                style={{ width: `${pct}%`, background: "linear-gradient(90deg, #2D5A3A, #F7931A)" }} />
+                          <span className="text-[9px] font-mono text-white/40 shrink-0">{pct}% yes</span>
+                        </div>
+                      </div>
+                      <Link href={`/vote/${proposal.id}`}>
+                        <div className="shrink-0 px-2.5 py-1.5 text-[9px] font-bold uppercase tracking-widest cursor-pointer transition-all glass-gold hover:bg-[#F7931A] hover:text-black rounded-sm text-[#F7931A]">
+                          Vote
+                        </div>
+                      </Link>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Token acquisition helper for new users */}
+          {activeProposals.length > 0 && (
+            <div className="flex items-center justify-between px-4 py-3 glass rounded-sm border border-white/5">
+              <div className="flex items-center gap-2.5">
+                <Droplets className="h-4 w-4 text-[#F7931A]/60 shrink-0" />
+                <div>
+                  <div className="text-[10px] font-bold text-white/60 uppercase tracking-widest">Need tokens to vote?</div>
+                  <div className="text-[9px] font-mono text-white/30">Get rBTC or CELO to participate in governance</div>
+                </div>
+              </div>
+              <Link href="/bridge">
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-[9px] font-mono uppercase tracking-widest border border-[#F7931A]/25 text-[#F7931A]/70 hover:text-[#F7931A] hover:border-[#F7931A]/50 transition-colors cursor-pointer">
+                  Bridge &amp; Acquire <ArrowRight className="h-3 w-3" />
+                </div>
+              </Link>
+            </div>
+          )}
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Active Proposals — full list */}
+        <div className="lg:col-span-2 space-y-4">
+          {!authenticated && (
+            <>
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm font-bold uppercase tracking-widest text-white/80">Active Proposals</h2>
+                <Link href="/proposals" className="text-[10px] font-mono text-[#F7931A] hover:underline flex items-center gap-1">
+                  View All <ChevronRight className="h-3 w-3" />
+                </Link>
+              </div>
+
+              <div className="space-y-3">
+                {proposalsLoading
+                  ? Array(3).fill(0).map((_, i) => <Skeleton key={i} className="h-24 w-full" />)
+                  : dashboardProposals.length > 0
+                  ? dashboardProposals.map((proposal) => {
+                      const total = proposal.yesVotes + proposal.noVotes + proposal.abstainVotes;
+                      const pct = total > 0 ? Math.round((proposal.yesVotes / total) * 100) : 0;
+                      const isCelo = proposal.chain === "celo";
+                      return (
+                        <div key={proposal.id}
+                          className="glass group hover:glass-terra transition-all duration-200 p-4 rounded-sm">
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="space-y-2 flex-1 min-w-0">
+                              <h3 className="font-bold text-sm text-white leading-tight">{proposal.title}</h3>
+                              <div className="flex gap-2 items-center text-[10px] font-mono flex-wrap">
+                                <Badge variant="outline"
+                                  className={`rounded-sm uppercase tracking-widest text-[9px] px-2 py-0.5 ${
+                                    isCelo
+                                      ? "text-green-400 border-green-400/40 bg-green-400/10"
+                                      : "text-[#F7931A] border-[#F7931A]/40 bg-[#F7931A]/10"
+                                  }`}>
+                                  {proposal.chain === "celo" ? "Celo" : "RSK"}
+                                </Badge>
+                                <span className="text-white/30">·</span>
+                                <span className="text-white/40">{proposal.census === "rbtc" ? "rBTC census" : "cUSD census"}</span>
+                                {proposal.endsAt && (
+                                  <>
+                                    <span className="text-white/30">·</span>
+                                    <span className="text-white/40">
+                                      Ends {new Date(proposal.endsAt).toLocaleDateString()}
+                                    </span>
+                                  </>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                                  <div className="h-full rounded-full transition-all duration-500"
+                                    style={{ width: `${pct}%`, background: "linear-gradient(90deg, #2D5A3A, #F7931A)" }} />
+                                </div>
+                                <span className="text-[10px] font-mono text-white/50 shrink-0">{pct}% Yes</span>
+                              </div>
                             </div>
-                            <span className="text-[10px] font-mono text-white/50 shrink-0">{pct}% Yes</span>
+                            <Link href={`/proposals/${proposal.id}`}>
+                              <div className="shrink-0 px-3 py-2 text-[10px] font-bold uppercase tracking-widest cursor-pointer transition-all glass-gold hover:bg-[#F7931A] hover:text-black rounded-sm text-[#F7931A]">
+                                View
+                              </div>
+                            </Link>
                           </div>
                         </div>
-                        <Link href={`/proposals/${proposal.id}`}>
-                          <div className="shrink-0 px-3 py-2 text-[10px] font-bold uppercase tracking-widest cursor-pointer transition-all glass-gold hover:bg-[#F7931A] hover:text-black rounded-sm text-[#F7931A]">
-                            Vote
-                          </div>
-                        </Link>
-                      </div>
+                      );
+                    })
+                  : (
+                    <div className="glass p-8 text-center text-white/30 text-sm font-mono rounded-sm">
+                      No active proposals at this time.
                     </div>
-                  );
-                })
-              : (
-                <div className="glass p-8 text-center text-white/30 text-sm font-mono rounded-sm">
-                  No active proposals at this time.
-                </div>
-              )}
-          </div>
+                  )}
+              </div>
+            </>
+          )}
 
-          {/* F.I.R.S.T. Principles — real content from veritasvillages.com */}
+          {/* F.I.R.S.T. Principles */}
           <div className="pt-2">
             <div className="flex items-center gap-2 mb-3">
               <Zap className="h-4 w-4 text-[#F7931A]" />
@@ -313,7 +418,7 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* DAO note — from website: "every resident has a vote through our DAO" */}
+          {/* DAO quote */}
           <div className="glass rounded-sm px-4 py-3 border border-[#F7931A]/15">
             <div className="flex items-start gap-2">
               <Vote className="h-3.5 w-3.5 text-[#F7931A] shrink-0 mt-0.5" />

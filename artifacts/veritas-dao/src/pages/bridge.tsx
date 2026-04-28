@@ -776,11 +776,26 @@ export default function Bridge() {
       <div>
         <div className="flex items-center gap-3 mb-1">
           <ArrowRightLeft className="h-5 w-5 text-[#F7931A]" />
-          <h1 className="text-xl font-bold uppercase tracking-widest text-white">Asset Bridge</h1>
+          <h1 className="text-xl font-bold uppercase tracking-widest text-white">Bridge &amp; Acquire</h1>
         </div>
         <p className="text-white/40 font-mono text-xs">
-          Move assets between Bitcoin, Rootstock, and Celo to participate in governance.
+          Get rBTC or CELO to participate in Veritas Villages governance voting.
         </p>
+      </div>
+
+      {/* Governance Context Banner */}
+      <div className="glass rounded-sm px-4 py-3 border border-[#2D5A3A]/50 flex items-start gap-3">
+        <ShieldCheck className="h-4 w-4 text-[#F7931A] shrink-0 mt-0.5" />
+        <div className="flex-1 min-w-0">
+          <div className="text-[10px] font-bold uppercase tracking-widest text-[#F7931A] mb-0.5">Why you need tokens</div>
+          <p className="text-[10px] font-mono text-white/40 leading-relaxed">
+            DAO proposals use a census based on your <span className="text-white/70">rBTC</span> (RSK proposals) or <span className="text-white/70">cUSD/CELO</span> (Celo proposals) balance.
+            Acquire tokens here, then go vote.
+          </p>
+        </div>
+        <a href="/proposals" className="shrink-0 flex items-center gap-1 px-3 py-1.5 rounded-sm text-[9px] font-mono uppercase tracking-widest border border-[#F7931A]/30 text-[#F7931A]/70 hover:text-[#F7931A] hover:border-[#F7931A]/50 transition-colors">
+          View proposals <ExternalLink className="h-2.5 w-2.5" />
+        </a>
       </div>
 
       {/* Testnet notice */}

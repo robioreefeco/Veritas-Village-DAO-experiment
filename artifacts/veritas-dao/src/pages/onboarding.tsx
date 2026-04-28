@@ -311,8 +311,9 @@ function StepWallet({ onFinish }: { onFinish: () => void }) {
 
 // ─── Onboarding overlay ───────────────────────────────────────────────────────
 export function OnboardingOverlay() {
-  const { showOnboarding, closeOnboarding, onboardingStep, setOnboardingStep, completeOnboarding } = useApp();
+  const { showOnboarding, closeOnboarding, onboardingStep, setOnboardingStep, completeOnboarding, selectedCommunity } = useApp();
   const { authenticated } = usePrivy();
+  const [, navigate] = useLocation();
 
   useEffect(() => {
     if (showOnboarding) {
@@ -328,6 +329,14 @@ export function OnboardingOverlay() {
   const TOTAL_STEPS = 4;
   const next = () => setOnboardingStep(Math.min(onboardingStep + 1, TOTAL_STEPS - 1));
   const back = () => setOnboardingStep(Math.max(onboardingStep - 1, 0));
+
+  const handleFinish = () => {
+    completeOnboarding();
+    // Route to community workspace if one was selected during onboarding
+    if (selectedCommunity) {
+      navigate(`/workspace/${selectedCommunity.id}`);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4"
@@ -349,7 +358,7 @@ export function OnboardingOverlay() {
           {onboardingStep === 0 && <StepWelcome onNext={() => authenticated ? next() : undefined} />}
           {onboardingStep === 1 && <StepCommunity onNext={next} onBack={back} />}
           {onboardingStep === 2 && <StepIdentity onNext={next} onBack={back} />}
-          {onboardingStep === 3 && <StepWallet onFinish={completeOnboarding} />}
+          {onboardingStep === 3 && <StepWallet onFinish={handleFinish} />}
         </div>
       </div>
     </div>

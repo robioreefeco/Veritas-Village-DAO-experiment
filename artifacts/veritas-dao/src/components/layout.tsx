@@ -647,16 +647,40 @@ export function Layout({ children }: { children: React.ReactNode }) {
     document.documentElement.classList.add("dark");
   }, []);
 
-  const navItems = [
+  const govItems = [
     { href: "/", label: "Dashboard", icon: <LayoutDashboard className="h-4 w-4" /> },
     { href: "/proposals", label: "Proposals", icon: <Shield className="h-4 w-4" /> },
     { href: "/admin", label: "Create Proposal", icon: <PlusCircle className="h-4 w-4" /> },
+  ];
+
+  const financeItems = [
+    { href: "/bridge", label: "Bridge & Acquire", icon: <Bitcoin className="h-4 w-4" /> },
     { href: "/swap", label: "Swap", icon: <ArrowRightLeft className="h-4 w-4" /> },
-    { href: "/bridge", label: "Bridge", icon: <Bitcoin className="h-4 w-4" /> },
   ];
 
   const isActive = (href: string) =>
     href === "/" ? location === "/" : location === href || location.startsWith(href + "/");
+
+  function NavItem({ href, label, icon, badge }: { href: string; label: string; icon: React.ReactNode; badge?: string }) {
+    return (
+      <Link href={href}>
+        <div
+          onClick={() => setIsMobileMenuOpen(false)}
+          className={`flex items-center gap-3 px-3 py-2.5 text-sm transition-all cursor-pointer rounded-sm ${
+            isActive(href)
+              ? "glass-terra text-white border-l-2 border-[#F7931A]"
+              : "text-white/50 hover:text-white hover:bg-white/5 border-l-2 border-transparent"
+          }`}
+        >
+          <span className={isActive(href) ? "text-[#F7931A]" : "text-white/40"}>{icon}</span>
+          <span className="font-mono text-xs uppercase tracking-wider flex-1">{label}</span>
+          {badge && (
+            <span className="text-[8px] font-mono px-1.5 py-0.5 rounded-full bg-[#F7931A]/20 text-[#F7931A] font-bold">{badge}</span>
+          )}
+        </div>
+      </Link>
+    );
+  }
 
   const SidebarContent = () => (
     <>
@@ -668,49 +692,42 @@ export function Layout({ children }: { children: React.ReactNode }) {
         </p>
       </div>
 
+      {/* Community context pill — shows active community scope */}
+      {selectedCommunity && (
+        <div className="px-4 py-2.5 border-b border-white/8 bg-white/2 flex items-center gap-2">
+          <span className="text-base leading-none">{selectedCommunity.flag}</span>
+          <div className="flex-1 min-w-0">
+            <div className="text-[9px] font-mono text-white/25 uppercase tracking-widest">Active community</div>
+            <div className="text-[11px] font-bold text-white/70 truncate">{selectedCommunity.name}</div>
+          </div>
+          <div className="w-1.5 h-1.5 rounded-full bg-green-400 shrink-0" />
+        </div>
+      )}
+
       {/* Scrollable body: nav + auth panel + powered-by */}
       <div className="flex-1 overflow-y-auto flex flex-col min-h-0">
         <nav className="p-4 space-y-1">
-          <div className="text-[9px] font-semibold text-white/30 mb-4 uppercase tracking-widest px-2">
-            Navigation
+          {/* Governance section */}
+          <div className="text-[9px] font-semibold text-white/30 mb-2 uppercase tracking-widest px-2">
+            Governance
           </div>
-          {navItems.map((item) => (
-            <Link key={item.href} href={item.href}>
-              <div
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center gap-3 px-3 py-2.5 text-sm transition-all cursor-pointer rounded-sm ${
-                  isActive(item.href)
-                    ? "glass-terra text-white border-l-2 border-[#F7931A]"
-                    : "text-white/50 hover:text-white hover:bg-white/5 border-l-2 border-transparent"
-                }`}
-              >
-                <span className={isActive(item.href) ? "text-[#F7931A]" : "text-white/40"}>
-                  {item.icon}
-                </span>
-                <span className="font-mono text-xs uppercase tracking-wider">{item.label}</span>
-              </div>
-            </Link>
+          {govItems.map((item) => (
+            <NavItem key={item.href} {...item} />
           ))}
+
+          {/* Finance section */}
+          <div className="pt-3 mt-2 border-t border-white/8">
+            <div className="text-[9px] font-semibold text-white/20 mb-2 uppercase tracking-widest px-2">Finance</div>
+            {financeItems.map((item) => (
+              <NavItem key={item.href} {...item} />
+            ))}
+          </div>
 
           {/* Profile — authenticated users */}
           {authenticated && (
             <div className="pt-3 mt-2 border-t border-white/10">
               <div className="text-[9px] font-semibold text-white/20 mb-2 uppercase tracking-widest px-2">Account</div>
-              <Link href="/profile">
-                <div
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={`flex items-center gap-3 px-3 py-2.5 text-sm transition-all cursor-pointer rounded-sm ${
-                    isActive("/profile")
-                      ? "glass-terra text-white border-l-2 border-[#F7931A]"
-                      : "text-white/50 hover:text-white hover:bg-white/5 border-l-2 border-transparent"
-                  }`}
-                >
-                  <span className={isActive("/profile") ? "text-[#F7931A]" : "text-white/40"}>
-                    <User className="h-4 w-4" />
-                  </span>
-                  <span className="font-mono text-xs uppercase tracking-wider flex-1">My Profile</span>
-                </div>
-              </Link>
+              <NavItem href="/profile" label="My Profile" icon={<User className="h-4 w-4" />} />
             </div>
           )}
 

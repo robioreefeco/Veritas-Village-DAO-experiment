@@ -7,7 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { ArrowLeft, CheckCircle2, Loader2, AlertCircle, ExternalLink, Wifi } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Loader2, AlertCircle, ExternalLink, Wifi, XCircle, ArrowRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { CastVoteBodyChoice } from "@workspace/api-zod";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -309,6 +309,58 @@ export default function Vote() {
             </div>
           ) : (
             <>
+              {/* Pre-flight Checklist */}
+              <div className="space-y-2 rounded-sm border border-white/8 bg-white/3 p-4">
+                <div className="text-[9px] font-mono uppercase tracking-widest text-white/30 mb-3">Pre-vote checklist</div>
+                {/* Wallet connected */}
+                <div className="flex items-center gap-3">
+                  <CheckCircle2 className="h-4 w-4 text-green-400 shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[11px] font-bold text-white/80">Wallet connected</div>
+                    <div className="text-[9px] font-mono text-white/35 truncate">{walletAddress?.slice(0, 10)}…{walletAddress?.slice(-6)}</div>
+                  </div>
+                </div>
+                {/* Required network */}
+                <div className="flex items-center gap-3">
+                  <CheckCircle2 className="h-4 w-4 text-green-400 shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[11px] font-bold text-white/80">
+                      Network: {proposal.chain === "celo" ? "Celo Sepolia" : "RSK Testnet"}
+                    </div>
+                    <div className="text-[9px] font-mono text-white/35">
+                      Required census: <span className="text-white/60 uppercase">{proposal.census}</span>
+                    </div>
+                  </div>
+                </div>
+                {/* Voting power */}
+                <div className="flex items-center gap-3">
+                  {balanceLoading ? (
+                    <Loader2 className="h-4 w-4 text-white/30 animate-spin shrink-0" />
+                  ) : hasVotingPower ? (
+                    <CheckCircle2 className="h-4 w-4 text-green-400 shrink-0" />
+                  ) : (
+                    <XCircle className="h-4 w-4 text-yellow-400 shrink-0" />
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[11px] font-bold text-white/80">
+                      {balanceLoading ? "Checking balance…" : hasVotingPower ? "Voting power confirmed" : "Insufficient balance"}
+                    </div>
+                    {!balanceLoading && (
+                      <div className="text-[9px] font-mono text-white/35">
+                        Balance: <span className={hasVotingPower ? "text-[#F7931A]" : "text-yellow-400"}>{formatted} {symbol}</span>
+                      </div>
+                    )}
+                  </div>
+                  {!balanceLoading && !hasVotingPower && balance !== null && (
+                    <Link href="/bridge">
+                      <div className="flex items-center gap-1 px-2 py-1 rounded-sm text-[9px] font-mono uppercase tracking-widest border border-[#F7931A]/30 text-[#F7931A]/70 hover:text-[#F7931A] hover:border-[#F7931A]/60 transition-colors cursor-pointer shrink-0">
+                        Get {symbol} <ArrowRight className="h-2.5 w-2.5" />
+                      </div>
+                    </Link>
+                  )}
+                </div>
+              </div>
+
               {/* Wallet + Balance Panel */}
               <div className="glass-terra border border-white/10 rounded-sm p-4 flex justify-between items-center font-mono text-sm">
                 <div>
@@ -335,8 +387,8 @@ export default function Vote() {
                   <AlertCircle className="h-4 w-4 text-yellow-400" />
                   <AlertTitle className="text-yellow-300">Insufficient Balance</AlertTitle>
                   <AlertDescription className="text-yellow-200/70 text-xs font-mono">
-                    You need {symbol} on {proposal.chain === "rsk" ? "RSK Testnet" : "Celo Sepolia"} to vote.
-                    Your current balance is {formatted} {symbol}.
+                    You need {symbol} on {proposal.chain === "rsk" ? "RSK Testnet" : "Celo Sepolia"} to vote.{" "}
+                    Visit <Link href="/bridge"><span className="text-[#F7931A] underline cursor-pointer">Bridge &amp; Acquire</span></Link> to get tokens.
                   </AlertDescription>
                 </Alert>
               )}
