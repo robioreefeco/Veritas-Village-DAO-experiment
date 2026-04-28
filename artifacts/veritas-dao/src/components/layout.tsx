@@ -636,8 +636,13 @@ function SignInPanel({ onLogin }: { onLogin: () => void }) {
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
-  const { login, logout, authenticated } = usePrivy();
+  const { login, logout, authenticated, user } = usePrivy();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const twitterUsername = (user as any)?.twitter?.username as string | undefined;
+  const googleEmail = (user as any)?.google?.email as string | undefined;
+  const userEmail = user?.email?.address;
+  const isSocialUser = authenticated && !!(twitterUsername || googleEmail || userEmail);
 
   useEffect(() => {
     document.documentElement.classList.add("dark");
@@ -687,6 +692,29 @@ export function Layout({ children }: { children: React.ReactNode }) {
               </div>
             </Link>
           ))}
+
+          {/* Key Recovery — only for web2 social users */}
+          {isSocialUser && (
+            <div className="pt-3 mt-2 border-t border-white/10">
+              <div className="text-[9px] font-semibold text-white/20 mb-2 uppercase tracking-widest px-2">Security</div>
+              <Link href="/recovery">
+                <div
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={`flex items-center gap-3 px-3 py-2.5 text-sm transition-all cursor-pointer rounded-sm ${
+                    isActive("/recovery")
+                      ? "glass-terra text-white border-l-2 border-[#F7931A]"
+                      : "text-white/50 hover:text-white hover:bg-white/5 border-l-2 border-transparent"
+                  }`}
+                >
+                  <span className={isActive("/recovery") ? "text-[#F7931A]" : "text-white/40"}>
+                    <KeyRound className="h-4 w-4" />
+                  </span>
+                  <span className="font-mono text-xs uppercase tracking-wider flex-1">Key Recovery</span>
+                  <span className="text-[8px] font-mono text-[#F7931A]/40 border border-[#F7931A]/20 px-1 py-0.5 rounded shrink-0">Web2</span>
+                </div>
+              </Link>
+            </div>
+          )}
 
           <div className="pt-3 mt-2 border-t border-white/10">
             <div className="text-[9px] font-semibold text-white/20 mb-2 uppercase tracking-widest px-2">Community</div>

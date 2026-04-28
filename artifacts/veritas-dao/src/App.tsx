@@ -13,6 +13,7 @@ import Vote from "@/pages/vote";
 import Admin from "@/pages/admin";
 import Bridge from "@/pages/bridge";
 import Swap from "@/pages/swap";
+import Recovery from "@/pages/recovery";
 
 const queryClient = new QueryClient();
 
@@ -59,6 +60,7 @@ function Router() {
         <Route path="/admin" component={Admin} />
         <Route path="/bridge" component={Bridge} />
         <Route path="/swap" component={Swap} />
+        <Route path="/recovery" component={Recovery} />
         <Route component={NotFound} />
       </Switch>
     </Layout>
