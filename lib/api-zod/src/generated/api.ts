@@ -44,6 +44,7 @@ export const ListProposalsResponseItem = zod.object({
   status: zod.enum(["active", "ended", "pending"]),
   electionId: zod.string().nullish(),
   anchorTxHash: zod.string().nullish(),
+  ipfsCid: zod.string().nullish(),
   creatorAddress: zod.string().nullish(),
   rbtcBalance: zod.string().nullish(),
   yesVotes: zod.number(),
@@ -67,6 +68,7 @@ export const CreateProposalBody = zod.object({
   creatorSignature: zod.string().min(10),
   anchorTxHash: zod.string().nullish(),
   imageUrls: zod.array(zod.string()).nullish(),
+  ipfsCid: zod.string().nullish(),
 });
 
 /**
@@ -86,6 +88,7 @@ export const GetProposalResponse = zod.object({
   electionId: zod.string().nullish(),
   anchorTxHash: zod.string().nullish(),
   imageUrls: zod.array(zod.string()).nullish(),
+  ipfsCid: zod.string().nullish(),
   creatorAddress: zod.string().nullish(),
   rbtcBalance: zod.string().nullish(),
   yesVotes: zod.number(),

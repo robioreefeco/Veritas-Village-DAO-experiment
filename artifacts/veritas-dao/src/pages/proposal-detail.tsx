@@ -4,15 +4,25 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Clock, Info, ShieldAlert, Vote as VoteIcon, ExternalLink } from "lucide-react";
+import { ArrowLeft, Clock, Info, ShieldAlert, Vote as VoteIcon, ExternalLink, Database, Copy, CheckCircle2 } from "lucide-react";
+import { ipfsGatewayUrl, ipfsShortCid } from "@/lib/ipfs";
+import { useState } from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, CartesianGrid } from "recharts";
 
 export default function ProposalDetail() {
   const { id } = useParams();
   const proposalId = parseInt(id || "0", 10);
+  const [copiedCid, setCopiedCid] = useState(false);
 
   const { data: proposal, isLoading: proposalLoading } = useGetProposal(proposalId);
   const { data: results, isLoading: resultsLoading } = useGetProposalResults(proposalId);
+
+  const handleCopyCid = (cid: string) => {
+    navigator.clipboard.writeText(cid).then(() => {
+      setCopiedCid(true);
+      setTimeout(() => setCopiedCid(false), 2000);
+    });
+  };
 
   if (proposalLoading) {
     return (
@@ -167,6 +177,50 @@ export default function ProposalDetail() {
                 <p className="opacity-80">This proposal is secured via Vocdoni's decentralized voting protocol. Census data and cryptographic proofs are anchored to the {proposal.chain === 'celo' ? 'Celo' : 'Rootstock'} network.</p>
               </div>
             </div>
+
+            {/* IPFS Storage Section */}
+            {(proposal as any).ipfsCid ? (
+              <div className="mt-4 space-y-3">
+                <div className="text-xs font-mono text-[#2D5A3A] uppercase tracking-wider flex items-center gap-2">
+                  <Database className="h-3.5 w-3.5 text-[#2D5A3A]" />
+                  IPFS Content Storage
+                </div>
+                <div className="p-4 border border-[#2D5A3A]/40 bg-[#2D5A3A]/5 rounded-sm space-y-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <div className="text-[10px] text-white/30 font-mono uppercase tracking-wider mb-1">Content ID (CID)</div>
+                      <div className="font-mono text-sm text-[#F7931A] break-all">{ipfsShortCid((proposal as any).ipfsCid)}</div>
+                    </div>
+                    <button
+                      onClick={() => handleCopyCid((proposal as any).ipfsCid)}
+                      className="shrink-0 p-2 border border-white/10 hover:border-[#F7931A]/40 hover:bg-[#F7931A]/5 transition-colors rounded-sm"
+                      title="Copy full CID"
+                    >
+                      {copiedCid
+                        ? <CheckCircle2 className="h-4 w-4 text-green-400" />
+                        : <Copy className="h-4 w-4 text-white/40" />}
+                    </button>
+                  </div>
+                  <p className="text-[10px] text-white/30 font-mono leading-relaxed">
+                    The proposal content is content-addressed on IPFS. The CID is a cryptographic fingerprint — anyone can verify the content has not been altered by re-computing the same hash from the original JSON.
+                  </p>
+                  <a
+                    href={ipfsGatewayUrl((proposal as any).ipfsCid)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-between w-full p-3 border border-[#2D5A3A]/40 bg-[#2D5A3A]/10 hover:bg-[#2D5A3A]/20 transition-colors rounded-sm group"
+                  >
+                    <span className="text-[11px] font-mono text-[#2D5A3A] group-hover:text-green-400 transition-colors">Verify on IPFS Gateway</span>
+                    <ExternalLink className="h-3.5 w-3.5 text-[#2D5A3A]/60 group-hover:text-green-400 transition-colors shrink-0 ml-2" />
+                  </a>
+                </div>
+              </div>
+            ) : (
+              <div className="mt-4 flex items-center gap-2 p-3 border border-white/5 bg-white/2 rounded-sm">
+                <Database className="h-3.5 w-3.5 text-white/15 shrink-0" />
+                <span className="text-[10px] font-mono text-white/20">No IPFS record — this proposal was created before IPFS integration.</span>
+              </div>
+            )}
           </section>
         </div>
 

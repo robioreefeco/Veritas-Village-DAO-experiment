@@ -34,7 +34,7 @@ export default defineConfig({
     'import.meta.env.VITE_PRIVY_APP_ID': JSON.stringify(process.env.PRIVY_APP_ID || process.env.VITE_PRIVY_APP_ID || 'demo'),
   },
   plugins: [
-    nodePolyfills({ include: ["buffer", "util", "stream", "crypto"] }),
+    nodePolyfills({ include: ["buffer", "util", "stream", "crypto", "events", "process"] }),
     react(),
     tailwindcss(),
     runtimeErrorOverlay(),

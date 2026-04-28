@@ -8,7 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, ShieldPlus, TerminalSquare, Wallet, CheckCircle2, ImagePlus, X } from "lucide-react";
+import { Loader2, ShieldPlus, TerminalSquare, Wallet, CheckCircle2, ImagePlus, X, Database } from "lucide-react";
+import { pinProposalToIPFS } from "@/lib/ipfs";
 import { useToast } from "@/hooks/use-toast";
 import { CreateProposalBodyChain, CreateProposalBodyCensus } from "@workspace/api-zod";
 import { useChainBalance } from "@/hooks/use-chain-balance";
@@ -118,6 +119,8 @@ export default function Admin() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [signedTitle, setSignedTitle] = useState<string | null>(null);
+  const [ipfsCid, setIpfsCid] = useState<string | null>(null);
+  const [submitStep, setSubmitStep] = useState<"idle"|"signing"|"ipfs"|"anchoring"|"creating">("idle");
   const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
   const [formData, setFormData] = useState({
     title: "",
@@ -149,6 +152,8 @@ export default function Admin() {
     }
 
     setIsSubmitting(true);
+    setSubmitStep("signing");
+    setIpfsCid(null);
 
     try {
       // Step 1: Sign the proposal intent with the connected Privy wallet
@@ -178,8 +183,27 @@ export default function Admin() {
       });
 
       setSignedTitle(formData.title);
+      setSubmitStep("ipfs");
 
-      // Step 2: Anchor on RSK / Celo — send a 0-value tx with proposal data as calldata
+      // Step 2: Pin proposal content to IPFS for immutable, verifiable storage
+      let pinnedCid: string | null = null;
+      try {
+        pinnedCid = await pinProposalToIPFS({
+          title: formData.title,
+          description: formData.description,
+          chain: formData.chain,
+          census: formData.census,
+          creatorAddress: walletAddress,
+          pinnedAt: new Date().toISOString(),
+        });
+        setIpfsCid(pinnedCid);
+      } catch (ipfsErr) {
+        console.warn("IPFS pinning failed, continuing without CID:", ipfsErr);
+      }
+
+      setSubmitStep("anchoring");
+
+      // Step 3: Anchor on RSK / Celo — send a 0-value tx with proposal data as calldata
       let anchorTxHash: string | null = null;
       try {
         const { toHex, defineChain } = await import("viem");
@@ -199,7 +223,9 @@ export default function Admin() {
         console.warn("On-chain anchor failed, continuing without TX hash:", txErr);
       }
 
-      // Step 3: Submit the proposal with address + signature + anchor TX
+      setSubmitStep("creating");
+
+      // Step 4: Submit the proposal with address + signature + anchor TX + IPFS CID
       const endsAt = new Date();
       endsAt.setDate(endsAt.getDate() + parseInt(formData.durationDays, 10));
 
@@ -214,6 +240,7 @@ export default function Admin() {
           creatorSignature: signature,
           anchorTxHash,
           imageUrls: uploadedImages.length > 0 ? uploadedImages.map((img) => img.objectPath) : null,
+          ipfsCid: pinnedCid ?? null,
         },
       });
 
@@ -226,6 +253,8 @@ export default function Admin() {
         description: err?.message || "Please try again.",
       });
       setSignedTitle(null);
+      setIpfsCid(null);
+      setSubmitStep("idle");
     } finally {
       setIsSubmitting(false);
     }
@@ -431,26 +460,26 @@ export default function Admin() {
 
             {/* Signing flow indicator */}
             <div className="flex flex-col gap-2 text-[11px] font-mono text-white/30 pt-2">
-              <div className="flex items-center gap-2">
-                <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] border ${walletAddress ? "border-green-400 text-green-400" : "border-white/20"}`}>
-                  {walletAddress ? "✓" : "1"}
-                </span>
-                Connect wallet
-              </div>
-              <div className="flex items-center gap-2">
-                <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] border ${signedTitle ? "border-green-400 text-green-400" : "border-white/20"}`}>
-                  {signedTitle ? "✓" : "2"}
-                </span>
-                Sign proposal intent (EIP-191)
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="w-4 h-4 rounded-full flex items-center justify-center text-[9px] border border-white/20">3</span>
-                Anchor TX on {formData.chain === "celo" ? "Celo Sepolia" : "RSK Testnet"} → real TX hash
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="w-4 h-4 rounded-full flex items-center justify-center text-[9px] border border-white/20">4</span>
-                Create Vocdoni election + save proposal
-              </div>
+              {[
+                { n: 1, done: !!walletAddress, active: false, label: "Connect wallet" },
+                { n: 2, done: !!signedTitle, active: submitStep === "signing", label: "Sign proposal intent (EIP-191)" },
+                { n: 3, done: !!ipfsCid, active: submitStep === "ipfs", label: "Pin content to IPFS → content fingerprint", icon: <Database className="h-2.5 w-2.5 text-[#F7931A]" /> },
+                { n: 4, done: false, active: submitStep === "anchoring", label: `Anchor TX on ${formData.chain === "celo" ? "Celo Sepolia" : "RSK Testnet"}` },
+                { n: 5, done: false, active: submitStep === "creating", label: "Create Vocdoni election + save proposal" },
+              ].map(({ n, done, active, label, icon }) => (
+                <div key={n} className={`flex items-center gap-2 transition-colors ${active ? "text-[#F7931A]" : done ? "text-green-400/70" : ""}`}>
+                  <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] border ${done ? "border-green-400 text-green-400" : active ? "border-[#F7931A] text-[#F7931A]" : "border-white/20"}`}>
+                    {done ? "✓" : active && isSubmitting ? <Loader2 className="h-2 w-2 animate-spin" /> : n}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    {icon && done && icon}
+                    {label}
+                    {n === 3 && ipfsCid && (
+                      <span className="text-green-400/60 ml-1 text-[9px]">→ {ipfsCid.slice(0, 10)}…</span>
+                    )}
+                  </span>
+                </div>
+              ))}
             </div>
 
             <div className="pt-4">
@@ -467,7 +496,10 @@ export default function Admin() {
                 {isSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    {signedTitle ? "Creating Vocdoni Election..." : "Waiting for Signature..."}
+                    {submitStep === "signing" && "Waiting for Signature..."}
+                    {submitStep === "ipfs" && "Pinning to IPFS..."}
+                    {submitStep === "anchoring" && "Anchoring On-Chain..."}
+                    {submitStep === "creating" && "Creating Vocdoni Election..."}
                   </>
                 ) : (
                   <>

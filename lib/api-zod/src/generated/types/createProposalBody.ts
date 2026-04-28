@@ -14,4 +14,9 @@ export interface CreateProposalBody {
   chain: CreateProposalBodyChain;
   census: CreateProposalBodyCensus;
   endsAt?: Date | null;
+  creatorAddress?: string;
+  creatorSignature?: string;
+  anchorTxHash?: string | null;
+  imageUrls?: string[] | null;
+  ipfsCid?: string | null;
 }

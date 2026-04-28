@@ -16,6 +16,7 @@ export const proposalsTable = pgTable("proposals", {
   status: statusEnum("status").notNull().default("active"),
   electionId: text("election_id"),
   anchorTxHash: text("anchor_tx_hash"),
+  ipfsCid: text("ipfs_cid"),
   imageUrls: text("image_urls").array(),
   creatorAddress: text("creator_address"),
   rbtcBalance: text("rbtc_balance"),

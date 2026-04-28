@@ -17,6 +17,9 @@ export interface Proposal {
   census: ProposalCensus;
   status: ProposalStatus;
   electionId?: string | null;
+  anchorTxHash?: string | null;
+  imageUrls?: string[] | null;
+  ipfsCid?: string | null;
   rbtcBalance?: string | null;
   yesVotes: number;
   noVotes: number;
