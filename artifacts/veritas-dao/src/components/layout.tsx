@@ -98,73 +98,117 @@ function WalletConnectIcon({ className }: { className?: string }) {
   );
 }
 
-// ─── TopBar Login Dropdown ───────────────────────────────────────────────────────
-function LoginDropdown({ onClose }: { onClose: () => void }) {
+// ─── Shared auth logic hook ──────────────────────────────────────────────────────
+function useAuthFlow(onSuccess?: () => void) {
   const { initOAuth } = useLoginWithOAuth();
   const { sendCode, loginWithCode } = useLoginWithEmail();
   const { connectWallet } = useConnectWallet();
 
-  const [emailStep, setEmailStep] = useState<'idle' | 'email' | 'code'>('idle');
-  const [emailVal, setEmailVal] = useState('');
-  const [codeVal, setCodeVal] = useState('');
+  const [step, setStep] = useState<'main' | 'code' | 'wallet'>('main');
+  const [email, setEmail] = useState('');
+  const [code, setCode] = useState('');
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
 
   const handleOAuth = async (provider: 'google' | 'twitter') => {
-    try { onClose(); await initOAuth({ provider }); } catch { /* redirect in progress */ }
+    try { onSuccess?.(); await initOAuth({ provider }); } catch { /* redirect */ }
   };
   const handleSend = async () => {
-    if (!emailVal.trim()) return;
+    if (!email.trim()) return;
     setBusy(true); setErr('');
-    try { await sendCode({ email: emailVal.trim() }); setEmailStep('code'); }
-    catch { setErr('Could not send code. Check your email address.'); }
+    try { await sendCode({ email: email.trim() }); setStep('code'); }
+    catch { setErr('Could not send code — check your address.'); }
     finally { setBusy(false); }
   };
   const handleVerify = async () => {
-    if (!codeVal.trim()) return;
+    if (!code.trim()) return;
     setBusy(true); setErr('');
-    try { await loginWithCode({ code: codeVal.trim() }); onClose(); }
-    catch { setErr('Invalid code — please try again.'); }
+    try { await loginWithCode({ code: code.trim() }); onSuccess?.(); }
+    catch { setErr('Wrong code — try again.'); }
     finally { setBusy(false); }
   };
+  const handleWallet = () => { onSuccess?.(); connectWallet(); };
+  const reset = () => { setStep('main'); setCode(''); setErr(''); };
+
+  return { step, setStep, email, setEmail, code, setCode, busy, err, handleOAuth, handleSend, handleVerify, handleWallet, reset };
+}
+
+// ─── TopBar Login Dropdown ───────────────────────────────────────────────────────
+function LoginDropdown({ onClose }: { onClose: () => void }) {
+  const { step, setStep, email, setEmail, code, setCode, busy, err, handleOAuth, handleSend, handleVerify, handleWallet, reset } = useAuthFlow(onClose);
+  const [walletOpen, setWalletOpen] = useState(false);
 
   return (
-    <div className="absolute right-0 top-full mt-2 w-72 z-50 glass border border-white/12 rounded-sm shadow-2xl overflow-hidden">
-      <div className="p-3 space-y-1">
-        {emailStep === 'idle' && (<>
-          <p className="text-[8px] uppercase tracking-widest text-white/25 font-mono px-1 pb-1">Social login</p>
-          <LoginMethodButton onClick={() => handleOAuth('twitter')} icon={<XIcon className="h-4 w-4 text-white" />} label="Twitter / X" sublabel="Connect your X account" />
-          <LoginMethodButton onClick={() => handleOAuth('google')} icon={<GoogleIcon className="h-4 w-4" />} label="Google / Gmail" sublabel="Continue with your Google account" />
-          <LoginMethodButton onClick={() => setEmailStep('email')} icon={<Mail className="h-4 w-4 text-white/70" />} label="Email" sublabel="One-time code — no password" />
-          <div className="border-t border-white/8 my-1" />
-          <p className="text-[8px] uppercase tracking-widest text-white/25 font-mono px-1 pt-1 pb-1">Crypto wallet</p>
-          <LoginMethodButton onClick={() => { onClose(); connectWallet(); }} icon={<div className="flex items-center gap-0.5"><RainbowIcon className="h-4 w-4" /><RabbyIcon className="h-3.5 w-3.5" /></div>} label="Rainbow / Rabby" sublabel="Connect an existing wallet" />
-          <LoginMethodButton onClick={() => { onClose(); connectWallet(); }} icon={<WalletConnectIcon className="h-4 w-4" />} label="WalletConnect" sublabel="Any wallet via QR code" />
-        </>)}
-        {emailStep === 'email' && (
-          <div className="space-y-2 py-1">
-            <button onClick={() => setEmailStep('idle')} className="flex items-center gap-1 text-[9px] text-white/40 hover:text-white/70 font-mono mb-1">
-              <ArrowLeft className="h-3 w-3" /> Back
+    <div className="absolute right-0 top-full mt-2 w-76 z-50 glass border border-white/12 rounded-sm shadow-2xl overflow-hidden" style={{ width: 288 }}>
+      <div className="p-4 space-y-3">
+
+        {step === 'main' && (<>
+          {/* Social one-tap */}
+          <div className="grid grid-cols-2 gap-2">
+            <button onClick={() => handleOAuth('google')}
+              className="flex items-center justify-center gap-2 py-2.5 rounded-sm bg-white/8 hover:bg-white/14 border border-white/10 hover:border-white/20 transition-all">
+              <GoogleIcon className="h-4 w-4 shrink-0" />
+              <span className="text-[11px] font-semibold text-white/80">Google</span>
             </button>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-white/60 px-1">Enter your email</p>
-            <input value={emailVal} onChange={e => setEmailVal(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSend()} placeholder="you@example.com" className="w-full bg-white/5 border border-white/15 rounded-sm px-3 py-2 text-[11px] font-mono text-white placeholder:text-white/20 focus:outline-none focus:border-[#F7931A]/50" />
-            {err && <p className="text-[9px] text-red-400 font-mono px-1">{err}</p>}
-            <button onClick={handleSend} disabled={busy || !emailVal.trim()} className="w-full flex items-center justify-center gap-2 py-2 rounded-sm bg-[#F7931A]/80 hover:bg-[#F7931A] disabled:opacity-40 transition-all text-[10px] font-bold uppercase tracking-widest text-white">
-              {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'Send Code'}
+            <button onClick={() => handleOAuth('twitter')}
+              className="flex items-center justify-center gap-2 py-2.5 rounded-sm bg-white/8 hover:bg-white/14 border border-white/10 hover:border-white/20 transition-all">
+              <XIcon className="h-4 w-4 text-white shrink-0" />
+              <span className="text-[11px] font-semibold text-white/80">Twitter</span>
             </button>
           </div>
-        )}
-        {emailStep === 'code' && (
-          <div className="space-y-2 py-1">
-            <button onClick={() => setEmailStep('email')} className="flex items-center gap-1 text-[9px] text-white/40 hover:text-white/70 font-mono mb-1">
-              <ArrowLeft className="h-3 w-3" /> Back
+
+          {/* Divider */}
+          <div className="flex items-center gap-2">
+            <div className="h-px flex-1 bg-white/10" />
+            <span className="text-[9px] text-white/25 font-mono uppercase tracking-widest">or email</span>
+            <div className="h-px flex-1 bg-white/10" />
+          </div>
+
+          {/* Email input */}
+          <div className="flex gap-2">
+            <input value={email} onChange={e => setEmail(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSend()}
+              placeholder="your@email.com" autoFocus
+              className="flex-1 min-w-0 bg-white/5 border border-white/15 rounded-sm px-3 py-2 text-[12px] text-white placeholder:text-white/25 focus:outline-none focus:border-[#2D5A3A]/70" />
+            <button onClick={handleSend} disabled={busy || !email.trim()}
+              className="shrink-0 px-3 py-2 rounded-sm font-bold text-[11px] text-white disabled:opacity-40 transition-all"
+              style={{ background: 'linear-gradient(135deg,#2D5A3A,#F7931A)' }}>
+              {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : '→'}
             </button>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-white/60 px-1">Check your inbox</p>
-            <p className="text-[9px] font-mono text-white/35 px-1">Enter the code sent to <span className="text-[#F7931A]/70">{emailVal}</span></p>
-            <input value={codeVal} onChange={e => setCodeVal(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleVerify()} placeholder="6-digit code" maxLength={8} className="w-full bg-white/5 border border-white/15 rounded-sm px-3 py-2 text-[11px] font-mono text-white placeholder:text-white/20 focus:outline-none focus:border-[#35D07F]/50 tracking-[0.3em] text-center" />
-            {err && <p className="text-[9px] text-red-400 font-mono px-1">{err}</p>}
-            <button onClick={handleVerify} disabled={busy || !codeVal.trim()} className="w-full flex items-center justify-center gap-2 py-2 rounded-sm bg-[#35D07F]/70 hover:bg-[#35D07F] disabled:opacity-40 transition-all text-[10px] font-bold uppercase tracking-widest text-white">
-              {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'Verify & Sign In'}
+          </div>
+          {err && <p className="text-[9px] text-red-400 font-mono">{err}</p>}
+
+          {/* Wallet escape hatch */}
+          <button onClick={() => setWalletOpen(o => !o)}
+            className="w-full flex items-center justify-center gap-1.5 text-[9px] text-white/25 hover:text-white/50 font-mono transition-colors">
+            <Wallet className="h-3 w-3" />
+            Already have a wallet?
+            <ChevronDown className={`h-3 w-3 transition-transform ${walletOpen ? 'rotate-180' : ''}`} />
+          </button>
+          {walletOpen && (
+            <div className="space-y-1 pt-0.5">
+              <LoginMethodButton onClick={handleWallet} icon={<div className="flex gap-0.5"><RainbowIcon className="h-4 w-4" /><RabbyIcon className="h-3.5 w-3.5" /></div>} label="Rainbow / Rabby" sublabel="Connect an existing wallet" />
+              <LoginMethodButton onClick={handleWallet} icon={<WalletConnectIcon className="h-4 w-4" />} label="WalletConnect" sublabel="Any wallet via QR code" />
+            </div>
+          )}
+        </>)}
+
+        {step === 'code' && (
+          <div className="space-y-3">
+            <div className="text-center space-y-1">
+              <p className="text-[13px] font-semibold text-white/80">Check your inbox</p>
+              <p className="text-[10px] font-mono text-white/35">Code sent to <span className="text-[#F7931A]/70">{email}</span></p>
+            </div>
+            <input value={code} onChange={e => setCode(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleVerify()}
+              placeholder="· · · · · ·" maxLength={8} autoFocus
+              className="w-full bg-white/5 border border-white/15 rounded-sm px-3 py-3 text-[16px] font-mono text-white placeholder:text-white/20 focus:outline-none focus:border-[#35D07F]/50 tracking-[0.5em] text-center" />
+            {err && <p className="text-[9px] text-red-400 font-mono text-center">{err}</p>}
+            <button onClick={handleVerify} disabled={busy || !code.trim()}
+              className="w-full py-2.5 rounded-sm font-bold text-[11px] uppercase tracking-widest text-white disabled:opacity-40 transition-all"
+              style={{ background: 'linear-gradient(135deg,#2D5A3A,#35D07F)' }}>
+              {busy ? <Loader2 className="h-4 w-4 animate-spin mx-auto" /> : 'Confirm & Join →'}
+            </button>
+            <button onClick={reset} className="w-full text-[9px] text-white/25 hover:text-white/50 font-mono transition-colors">
+              ← Use a different method
             </button>
           </div>
         )}
@@ -621,106 +665,88 @@ function UserPanel({ onLogout }: { onLogout: () => void }) {
 }
 
 function SignInPanel() {
-  const { initOAuth } = useLoginWithOAuth();
-  const { sendCode, loginWithCode } = useLoginWithEmail();
-  const { connectWallet } = useConnectWallet();
-
-  const [emailStep, setEmailStep] = useState<'idle' | 'email' | 'code'>('idle');
-  const [emailVal, setEmailVal] = useState('');
-  const [codeVal, setCodeVal] = useState('');
-  const [busy, setBusy] = useState(false);
-  const [err, setErr] = useState('');
-
-  const handleOAuth = async (provider: 'google' | 'twitter') => {
-    try { await initOAuth({ provider }); } catch { /* redirect in progress */ }
-  };
-
-  const handleSend = async () => {
-    if (!emailVal.trim()) return;
-    setBusy(true); setErr('');
-    try { await sendCode({ email: emailVal.trim() }); setEmailStep('code'); }
-    catch { setErr('Could not send code. Check your email address.'); }
-    finally { setBusy(false); }
-  };
-
-  const handleVerify = async () => {
-    if (!codeVal.trim()) return;
-    setBusy(true); setErr('');
-    try { await loginWithCode({ code: codeVal.trim() }); }
-    catch { setErr('Invalid code — please try again.'); }
-    finally { setBusy(false); }
-  };
+  const { step, email, setEmail, code, setCode, busy, err, handleOAuth, handleSend, handleVerify, handleWallet, reset } = useAuthFlow();
+  const [walletOpen, setWalletOpen] = useState(false);
 
   return (
-    <div className="p-3 border-t border-white/10 space-y-3">
-      {emailStep === 'idle' && (<>
-        {/* Social logins */}
-        <div className="space-y-1.5">
-          <p className="text-[8px] uppercase tracking-widest text-white/25 font-mono px-1">Social login</p>
-          <LoginMethodButton onClick={() => handleOAuth('twitter')} icon={<XIcon className="h-4 w-4 text-white" />} label="Twitter / X" sublabel="Connect your X account" />
-          <LoginMethodButton onClick={() => handleOAuth('google')} icon={<GoogleIcon className="h-4 w-4" />} label="Google / Gmail" sublabel="Continue with your Google account" />
-          <LoginMethodButton onClick={() => setEmailStep('email')} icon={<Mail className="h-4 w-4 text-white/70" />} label="Email" sublabel="One-time code — no password" />
-        </div>
+    <div className="px-3 py-4 border-t border-white/10 space-y-3">
 
-        {/* Crypto wallet logins */}
-        <div className="space-y-1.5">
-          <p className="text-[8px] uppercase tracking-widest text-white/25 font-mono px-1">Crypto wallet</p>
-          <LoginMethodButton onClick={() => connectWallet()} icon={<RainbowIcon className="h-5 w-5" />} label="Rainbow Wallet" sublabel="Mobile-first multichain wallet" />
-          <LoginMethodButton onClick={() => connectWallet()} icon={<RabbyIcon className="h-4 w-4" />} label="Rabby Wallet" sublabel="Security-focused EVM wallet" />
-          <LoginMethodButton onClick={() => connectWallet()} icon={<WalletConnectIcon className="h-4 w-4" />} label="WalletConnect" sublabel="Any wallet via QR code" />
-        </div>
+      {step === 'main' && (<>
+        {/* Headline */}
+        <p className="text-[10px] font-semibold text-white/50 text-center">Join with your account</p>
 
-        {/* Recovery hint */}
-        <div className="rounded-sm border border-[#F7931A]/12 bg-[#F7931A]/4 px-3 py-2.5 space-y-1.5">
-          <div className="flex items-center gap-1.5">
-            <KeyRound className="h-3 w-3 text-[#F7931A]/60 shrink-0" />
-            <p className="text-[9px] font-bold uppercase tracking-widest text-[#F7931A]/70">Returning? Recover your wallet</p>
-          </div>
-          <p className="text-[8px] font-mono text-white/30 leading-relaxed">
-            Sign in with the same social account — Privy automatically restores your embedded wallet.
-          </p>
-          <button onClick={() => handleOAuth('google')} className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-sm border border-[#F7931A]/20 hover:border-[#F7931A]/40 bg-[#F7931A]/8 hover:bg-[#F7931A]/15 transition-all">
-            <RefreshCw className="h-3 w-3 text-[#F7931A]/70" />
-            <span className="text-[9px] font-mono uppercase tracking-widest text-[#F7931A]/70">Restore wallet access</span>
+        {/* Social one-tap */}
+        <div className="grid grid-cols-2 gap-2">
+          <button onClick={() => handleOAuth('google')}
+            className="flex items-center justify-center gap-2 py-2.5 rounded-sm bg-white/8 hover:bg-white/14 border border-white/10 hover:border-white/20 transition-all">
+            <GoogleIcon className="h-4 w-4 shrink-0" />
+            <span className="text-[11px] font-semibold text-white/80">Google</span>
+          </button>
+          <button onClick={() => handleOAuth('twitter')}
+            className="flex items-center justify-center gap-2 py-2.5 rounded-sm bg-white/8 hover:bg-white/14 border border-white/10 hover:border-white/20 transition-all">
+            <XIcon className="h-4 w-4 text-white shrink-0" />
+            <span className="text-[11px] font-semibold text-white/80">Twitter</span>
           </button>
         </div>
+
+        {/* Divider */}
+        <div className="flex items-center gap-2">
+          <div className="h-px flex-1 bg-white/10" />
+          <span className="text-[9px] text-white/25 font-mono uppercase tracking-widest">or email</span>
+          <div className="h-px flex-1 bg-white/10" />
+        </div>
+
+        {/* Email input */}
+        <div className="space-y-2">
+          <input
+            value={email} onChange={e => setEmail(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && handleSend()}
+            placeholder="your@email.com"
+            className="w-full bg-white/5 border border-white/15 rounded-sm px-3 py-2.5 text-[12px] text-white placeholder:text-white/25 focus:outline-none focus:border-[#2D5A3A]/70"
+          />
+          {err && <p className="text-[9px] text-red-400 font-mono">{err}</p>}
+          <button onClick={handleSend} disabled={busy || !email.trim()}
+            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-sm font-bold text-[11px] uppercase tracking-widest text-white disabled:opacity-40 transition-all"
+            style={{ background: 'linear-gradient(135deg,#2D5A3A,#F7931A)' }}>
+            {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'Continue with Email →'}
+          </button>
+        </div>
+
+        {/* Wallet escape hatch */}
+        <button onClick={() => setWalletOpen(o => !o)}
+          className="w-full flex items-center justify-center gap-1.5 text-[9px] text-white/25 hover:text-white/45 font-mono transition-colors">
+          <Wallet className="h-3 w-3" />
+          Already have a wallet?
+          <ChevronDown className={`h-3 w-3 transition-transform ${walletOpen ? 'rotate-180' : ''}`} />
+        </button>
+        {walletOpen && (
+          <div className="space-y-1">
+            <LoginMethodButton onClick={handleWallet} icon={<div className="flex gap-0.5"><RainbowIcon className="h-4 w-4" /><RabbyIcon className="h-3.5 w-3.5" /></div>} label="Rainbow / Rabby" sublabel="Connect an existing wallet" />
+            <LoginMethodButton onClick={handleWallet} icon={<WalletConnectIcon className="h-4 w-4" />} label="WalletConnect" sublabel="Any wallet via QR code" />
+          </div>
+        )}
       </>)}
 
-      {emailStep === 'email' && (
-        <div className="space-y-2">
-          <button onClick={() => { setEmailStep('idle'); setErr(''); }} className="flex items-center gap-1 text-[9px] text-white/40 hover:text-white/70 font-mono">
-            <ArrowLeft className="h-3 w-3" /> Back
-          </button>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-white/60">Enter your email</p>
+      {step === 'code' && (
+        <div className="space-y-3">
+          <div className="text-center space-y-1">
+            <p className="text-[13px] font-semibold text-white/80">Check your inbox ✉️</p>
+            <p className="text-[10px] font-mono text-white/35">Sent to <span className="text-[#F7931A]/70">{email}</span></p>
+          </div>
           <input
-            value={emailVal} onChange={e => setEmailVal(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && handleSend()}
-            placeholder="you@example.com" autoFocus
-            className="w-full bg-white/5 border border-white/15 rounded-sm px-3 py-2 text-[11px] font-mono text-white placeholder:text-white/20 focus:outline-none focus:border-[#F7931A]/50"
-          />
-          {err && <p className="text-[9px] text-red-400 font-mono">{err}</p>}
-          <button onClick={handleSend} disabled={busy || !emailVal.trim()} className="w-full flex items-center justify-center gap-2 py-2 rounded-sm bg-[#F7931A]/80 hover:bg-[#F7931A] disabled:opacity-40 transition-all text-[10px] font-bold uppercase tracking-widest text-white">
-            {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'Send Code →'}
-          </button>
-        </div>
-      )}
-
-      {emailStep === 'code' && (
-        <div className="space-y-2">
-          <button onClick={() => { setEmailStep('email'); setCodeVal(''); setErr(''); }} className="flex items-center gap-1 text-[9px] text-white/40 hover:text-white/70 font-mono">
-            <ArrowLeft className="h-3 w-3" /> Back
-          </button>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-white/60">Check your inbox</p>
-          <p className="text-[9px] font-mono text-white/35">Code sent to <span className="text-[#F7931A]/70">{emailVal}</span></p>
-          <input
-            value={codeVal} onChange={e => setCodeVal(e.target.value)}
+            value={code} onChange={e => setCode(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && handleVerify()}
-            placeholder="Enter code" maxLength={8} autoFocus
-            className="w-full bg-white/5 border border-white/15 rounded-sm px-3 py-2 text-[13px] font-mono text-white placeholder:text-white/20 focus:outline-none focus:border-[#35D07F]/50 tracking-[0.4em] text-center"
+            placeholder="· · · · · ·" maxLength={8} autoFocus
+            className="w-full bg-white/5 border border-white/15 rounded-sm px-3 py-3 text-[18px] font-mono text-white placeholder:text-white/20 focus:outline-none focus:border-[#35D07F]/50 tracking-[0.5em] text-center"
           />
-          {err && <p className="text-[9px] text-red-400 font-mono">{err}</p>}
-          <button onClick={handleVerify} disabled={busy || !codeVal.trim()} className="w-full flex items-center justify-center gap-2 py-2 rounded-sm bg-[#35D07F]/70 hover:bg-[#35D07F] disabled:opacity-40 transition-all text-[10px] font-bold uppercase tracking-widest text-white">
-            {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'Verify & Sign In →'}
+          {err && <p className="text-[9px] text-red-400 font-mono text-center">{err}</p>}
+          <button onClick={handleVerify} disabled={busy || !code.trim()}
+            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-sm font-bold text-[11px] uppercase tracking-widest text-white disabled:opacity-40 transition-all"
+            style={{ background: 'linear-gradient(135deg,#2D5A3A,#35D07F)' }}>
+            {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Confirm & Join →'}
+          </button>
+          <button onClick={reset} className="w-full text-[9px] text-white/25 hover:text-white/50 font-mono transition-colors text-center">
+            ← Use a different method
           </button>
         </div>
       )}
