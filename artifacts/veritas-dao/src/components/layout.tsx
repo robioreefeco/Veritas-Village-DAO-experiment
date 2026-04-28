@@ -4,9 +4,10 @@ import { usePrivy } from "@privy-io/react-auth";
 import {
   LayoutDashboard, Shield, Wallet, Menu, PlusCircle, Globe, X,
   ExternalLink, ArrowRightLeft, Mail, LogOut, ChevronDown, ChevronUp, Copy, CheckCircle2,
-  Bitcoin, KeyRound, RefreshCw,
+  Bitcoin, KeyRound, RefreshCw, User, MapPin, ChevronRight, Layers,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useApp, COMMUNITIES } from "@/context/AppContext";
 
 const BASE = import.meta.env.BASE_URL?.replace(/\/$/, "") || "";
 
@@ -636,13 +637,11 @@ function SignInPanel({ onLogin }: { onLogin: () => void }) {
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
-  const { login, logout, authenticated, user } = usePrivy();
+  const { login, logout, authenticated } = usePrivy();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [communityOpen, setCommunityOpen] = useState(false);
 
-  const twitterUsername = (user as any)?.twitter?.username as string | undefined;
-  const googleEmail = (user as any)?.google?.email as string | undefined;
-  const userEmail = user?.email?.address;
-  const isSocialUser = authenticated && !!(twitterUsername || googleEmail || userEmail);
+  const { selectedCommunity, setSelectedCommunity, isSocialUser } = useApp();
 
   useEffect(() => {
     document.documentElement.classList.add("dark");
@@ -692,6 +691,67 @@ export function Layout({ children }: { children: React.ReactNode }) {
               </div>
             </Link>
           ))}
+
+          {/* Profile — authenticated users */}
+          {authenticated && (
+            <div className="pt-3 mt-2 border-t border-white/10">
+              <div className="text-[9px] font-semibold text-white/20 mb-2 uppercase tracking-widest px-2">Account</div>
+              <Link href="/profile">
+                <div
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={`flex items-center gap-3 px-3 py-2.5 text-sm transition-all cursor-pointer rounded-sm ${
+                    isActive("/profile")
+                      ? "glass-terra text-white border-l-2 border-[#F7931A]"
+                      : "text-white/50 hover:text-white hover:bg-white/5 border-l-2 border-transparent"
+                  }`}
+                >
+                  <span className={isActive("/profile") ? "text-[#F7931A]" : "text-white/40"}>
+                    <User className="h-4 w-4" />
+                  </span>
+                  <span className="font-mono text-xs uppercase tracking-wider flex-1">My Profile</span>
+                </div>
+              </Link>
+            </div>
+          )}
+
+          {/* Reef Workspaces */}
+          <div className="pt-3 mt-2 border-t border-white/10">
+            <button
+              onClick={() => setCommunityOpen(o => !o)}
+              className="w-full flex items-center gap-2 px-2 mb-2 text-left group"
+            >
+              <Layers className="h-3 w-3 text-white/25 shrink-0" />
+              <div className="text-[9px] font-semibold text-white/20 uppercase tracking-widest flex-1 group-hover:text-white/35 transition-colors">Reef Workspaces</div>
+              {communityOpen
+                ? <ChevronDown className="h-3 w-3 text-white/20 shrink-0" />
+                : <ChevronRight className="h-3 w-3 text-white/20 shrink-0" />}
+            </button>
+            {communityOpen && (
+              <div className="space-y-0.5">
+                {COMMUNITIES.map((c) => (
+                  <Link key={c.id} href={`/workspace/${c.id}`}>
+                    <div
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className={`flex items-center gap-2.5 px-3 py-2 text-sm transition-all cursor-pointer rounded-sm ${
+                        location === `/workspace/${c.id}`
+                          ? "glass-terra text-white border-l-2 border-[#F7931A]"
+                          : "text-white/40 hover:text-white hover:bg-white/5 border-l-2 border-transparent"
+                      }`}
+                    >
+                      <span className="text-base leading-none shrink-0">{c.flag}</span>
+                      <span className="font-mono text-xs flex-1 truncate">{c.name}</span>
+                      {c.status === "coming_soon" && (
+                        <span className="text-[7px] font-mono text-white/20 shrink-0">soon</span>
+                      )}
+                      {selectedCommunity?.id === c.id && (
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#F7931A] shrink-0" />
+                      )}
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
 
           {/* Key Recovery — only for web2 social users */}
           {isSocialUser && (
