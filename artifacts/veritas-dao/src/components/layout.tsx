@@ -714,14 +714,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
             </div>
           )}
 
-          {/* Reef Workspaces */}
+          {/* Regen Spaces */}
           <div className="pt-3 mt-2 border-t border-white/10">
             <button
               onClick={() => setCommunityOpen(o => !o)}
               className="w-full flex items-center gap-2 px-2 mb-2 text-left group"
             >
               <Layers className="h-3 w-3 text-white/25 shrink-0" />
-              <div className="text-[9px] font-semibold text-white/20 uppercase tracking-widest flex-1 group-hover:text-white/35 transition-colors">Reef Workspaces</div>
+              <div className="text-[9px] font-semibold text-white/20 uppercase tracking-widest flex-1 group-hover:text-white/35 transition-colors">Regen Spaces</div>
               {communityOpen
                 ? <ChevronDown className="h-3 w-3 text-white/20 shrink-0" />
                 : <ChevronRight className="h-3 w-3 text-white/20 shrink-0" />}
