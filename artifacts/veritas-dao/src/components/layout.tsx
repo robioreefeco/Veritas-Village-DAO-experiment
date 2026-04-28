@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "wouter";
-import { usePrivy } from "@privy-io/react-auth";
+import { usePrivy, useLoginWithOAuth, useLoginWithEmail, useConnectWallet } from "@privy-io/react-auth";
 import {
   LayoutDashboard, Shield, Wallet, Menu, PlusCircle, Globe, X,
   ExternalLink, ArrowRightLeft, Mail, LogOut, ChevronDown, ChevronUp, Copy, CheckCircle2,
-  Bitcoin, KeyRound, RefreshCw, User, MapPin, ChevronRight, Layers,
+  Bitcoin, KeyRound, RefreshCw, User, MapPin, ChevronRight, Layers, Loader2, ArrowLeft,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useApp, COMMUNITIES } from "@/context/AppContext";
@@ -100,31 +100,74 @@ function WalletConnectIcon({ className }: { className?: string }) {
 
 // ─── TopBar Login Dropdown ───────────────────────────────────────────────────────
 function LoginDropdown({ onClose }: { onClose: () => void }) {
-  const { login } = usePrivy();
+  const { initOAuth } = useLoginWithOAuth();
+  const { sendCode, loginWithCode } = useLoginWithEmail();
+  const { connectWallet } = useConnectWallet();
 
-  const handle = () => { login(); onClose(); };
+  const [emailStep, setEmailStep] = useState<'idle' | 'email' | 'code'>('idle');
+  const [emailVal, setEmailVal] = useState('');
+  const [codeVal, setCodeVal] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState('');
+
+  const handleOAuth = async (provider: 'google' | 'twitter') => {
+    try { onClose(); await initOAuth({ provider }); } catch { /* redirect in progress */ }
+  };
+  const handleSend = async () => {
+    if (!emailVal.trim()) return;
+    setBusy(true); setErr('');
+    try { await sendCode({ email: emailVal.trim() }); setEmailStep('code'); }
+    catch { setErr('Could not send code. Check your email address.'); }
+    finally { setBusy(false); }
+  };
+  const handleVerify = async () => {
+    if (!codeVal.trim()) return;
+    setBusy(true); setErr('');
+    try { await loginWithCode({ code: codeVal.trim() }); onClose(); }
+    catch { setErr('Invalid code — please try again.'); }
+    finally { setBusy(false); }
+  };
 
   return (
     <div className="absolute right-0 top-full mt-2 w-72 z-50 glass border border-white/12 rounded-sm shadow-2xl overflow-hidden">
       <div className="p-3 space-y-1">
-        <p className="text-[8px] uppercase tracking-widest text-white/25 font-mono px-1 pb-1">Social login</p>
-        <LoginMethodButton onClick={handle} icon={<XIcon className="h-4 w-4 text-white" />} label="Twitter / X" sublabel="Connect your X account" />
-        <LoginMethodButton onClick={handle} icon={<GoogleIcon className="h-4 w-4" />} label="Google / Gmail" sublabel="Continue with your Google account" />
-        <LoginMethodButton onClick={handle} icon={<Mail className="h-4 w-4 text-white/70" />} label="Email" sublabel="Magic link — no password" />
-        <div className="border-t border-white/8 my-1" />
-        <p className="text-[8px] uppercase tracking-widest text-white/25 font-mono px-1 pt-1 pb-1">Crypto wallet</p>
-        <LoginMethodButton
-          onClick={handle}
-          icon={
-            <div className="flex items-center gap-0.5">
-              <RainbowIcon className="h-4 w-4" />
-              <RabbyIcon className="h-3.5 w-3.5" />
-            </div>
-          }
-          label="Rainbow / Rabby"
-          sublabel="Connect an existing wallet"
-        />
-        <LoginMethodButton onClick={handle} icon={<WalletConnectIcon className="h-4 w-4" />} label="WalletConnect" sublabel="Any wallet via QR code" />
+        {emailStep === 'idle' && (<>
+          <p className="text-[8px] uppercase tracking-widest text-white/25 font-mono px-1 pb-1">Social login</p>
+          <LoginMethodButton onClick={() => handleOAuth('twitter')} icon={<XIcon className="h-4 w-4 text-white" />} label="Twitter / X" sublabel="Connect your X account" />
+          <LoginMethodButton onClick={() => handleOAuth('google')} icon={<GoogleIcon className="h-4 w-4" />} label="Google / Gmail" sublabel="Continue with your Google account" />
+          <LoginMethodButton onClick={() => setEmailStep('email')} icon={<Mail className="h-4 w-4 text-white/70" />} label="Email" sublabel="One-time code — no password" />
+          <div className="border-t border-white/8 my-1" />
+          <p className="text-[8px] uppercase tracking-widest text-white/25 font-mono px-1 pt-1 pb-1">Crypto wallet</p>
+          <LoginMethodButton onClick={() => { onClose(); connectWallet(); }} icon={<div className="flex items-center gap-0.5"><RainbowIcon className="h-4 w-4" /><RabbyIcon className="h-3.5 w-3.5" /></div>} label="Rainbow / Rabby" sublabel="Connect an existing wallet" />
+          <LoginMethodButton onClick={() => { onClose(); connectWallet(); }} icon={<WalletConnectIcon className="h-4 w-4" />} label="WalletConnect" sublabel="Any wallet via QR code" />
+        </>)}
+        {emailStep === 'email' && (
+          <div className="space-y-2 py-1">
+            <button onClick={() => setEmailStep('idle')} className="flex items-center gap-1 text-[9px] text-white/40 hover:text-white/70 font-mono mb-1">
+              <ArrowLeft className="h-3 w-3" /> Back
+            </button>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-white/60 px-1">Enter your email</p>
+            <input value={emailVal} onChange={e => setEmailVal(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSend()} placeholder="you@example.com" className="w-full bg-white/5 border border-white/15 rounded-sm px-3 py-2 text-[11px] font-mono text-white placeholder:text-white/20 focus:outline-none focus:border-[#F7931A]/50" />
+            {err && <p className="text-[9px] text-red-400 font-mono px-1">{err}</p>}
+            <button onClick={handleSend} disabled={busy || !emailVal.trim()} className="w-full flex items-center justify-center gap-2 py-2 rounded-sm bg-[#F7931A]/80 hover:bg-[#F7931A] disabled:opacity-40 transition-all text-[10px] font-bold uppercase tracking-widest text-white">
+              {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'Send Code'}
+            </button>
+          </div>
+        )}
+        {emailStep === 'code' && (
+          <div className="space-y-2 py-1">
+            <button onClick={() => setEmailStep('email')} className="flex items-center gap-1 text-[9px] text-white/40 hover:text-white/70 font-mono mb-1">
+              <ArrowLeft className="h-3 w-3" /> Back
+            </button>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-white/60 px-1">Check your inbox</p>
+            <p className="text-[9px] font-mono text-white/35 px-1">Enter the code sent to <span className="text-[#F7931A]/70">{emailVal}</span></p>
+            <input value={codeVal} onChange={e => setCodeVal(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleVerify()} placeholder="6-digit code" maxLength={8} className="w-full bg-white/5 border border-white/15 rounded-sm px-3 py-2 text-[11px] font-mono text-white placeholder:text-white/20 focus:outline-none focus:border-[#35D07F]/50 tracking-[0.3em] text-center" />
+            {err && <p className="text-[9px] text-red-400 font-mono px-1">{err}</p>}
+            <button onClick={handleVerify} disabled={busy || !codeVal.trim()} className="w-full flex items-center justify-center gap-2 py-2 rounded-sm bg-[#35D07F]/70 hover:bg-[#35D07F] disabled:opacity-40 transition-all text-[10px] font-bold uppercase tracking-widest text-white">
+              {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'Verify & Sign In'}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -205,9 +248,11 @@ function UserDropdown({ onClose, onLogout }: { onClose: () => void; onLogout: ()
 }
 
 function TopBar() {
-  const { authenticated, login, logout, user } = usePrivy();
+  const { authenticated, logout, user } = usePrivy();
   const [open, setOpen] = useState(false);
+  const [loginOpen, setLoginOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const loginRef = useRef<HTMLDivElement>(null);
   const address = user?.wallet?.address ?? "";
   const twitterUsername = (user as any)?.twitter?.username as string | undefined;
   const email = user?.email?.address;
@@ -222,6 +267,15 @@ function TopBar() {
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, [open]);
+
+  useEffect(() => {
+    if (!loginOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (loginRef.current && !loginRef.current.contains(e.target as Node)) setLoginOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [loginOpen]);
 
   return (
     <div className="hidden md:flex items-center justify-end gap-2 px-6 py-3 border-b border-white/8 sidebar-glass shrink-0">
@@ -262,15 +316,19 @@ function TopBar() {
           </button>
         </div>
       ) : (
-        /* ── Unauthenticated: login button ── */
-        <button
-          onClick={() => login()}
-          className="flex items-center gap-2 px-4 py-2 rounded-sm font-bold text-[11px] uppercase tracking-widest text-white transition-opacity hover:opacity-90"
-          style={{ background: "linear-gradient(135deg, #2D5A3A, #F7931A)" }}
-        >
-          <Wallet className="h-3.5 w-3.5" />
-          Log In
-        </button>
+        /* ── Unauthenticated: login dropdown ── */
+        <div className="relative" ref={loginRef}>
+          <button
+            onClick={() => setLoginOpen(o => !o)}
+            className="flex items-center gap-2 px-4 py-2 rounded-sm font-bold text-[11px] uppercase tracking-widest text-white transition-opacity hover:opacity-90"
+            style={{ background: "linear-gradient(135deg, #2D5A3A, #F7931A)" }}
+          >
+            <Wallet className="h-3.5 w-3.5" />
+            Log In
+            <ChevronDown className={`h-3 w-3 transition-transform ${loginOpen ? "rotate-180" : ""}`} />
+          </button>
+          {loginOpen && <LoginDropdown onClose={() => setLoginOpen(false)} />}
+        </div>
       )}
     </div>
   );
@@ -562,84 +620,130 @@ function UserPanel({ onLogout }: { onLogout: () => void }) {
   );
 }
 
-function SignInPanel({ onLogin }: { onLogin: () => void }) {
+function SignInPanel() {
+  const { initOAuth } = useLoginWithOAuth();
+  const { sendCode, loginWithCode } = useLoginWithEmail();
+  const { connectWallet } = useConnectWallet();
+
+  const [emailStep, setEmailStep] = useState<'idle' | 'email' | 'code'>('idle');
+  const [emailVal, setEmailVal] = useState('');
+  const [codeVal, setCodeVal] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState('');
+
+  const handleOAuth = async (provider: 'google' | 'twitter') => {
+    try { await initOAuth({ provider }); } catch { /* redirect in progress */ }
+  };
+
+  const handleSend = async () => {
+    if (!emailVal.trim()) return;
+    setBusy(true); setErr('');
+    try { await sendCode({ email: emailVal.trim() }); setEmailStep('code'); }
+    catch { setErr('Could not send code. Check your email address.'); }
+    finally { setBusy(false); }
+  };
+
+  const handleVerify = async () => {
+    if (!codeVal.trim()) return;
+    setBusy(true); setErr('');
+    try { await loginWithCode({ code: codeVal.trim() }); }
+    catch { setErr('Invalid code — please try again.'); }
+    finally { setBusy(false); }
+  };
+
   return (
     <div className="p-3 border-t border-white/10 space-y-3">
-      {/* Social logins */}
-      <div className="space-y-1.5">
-        <p className="text-[8px] uppercase tracking-widest text-white/25 font-mono px-1">Social login</p>
-        <LoginMethodButton
-          onClick={onLogin}
-          icon={<XIcon className="h-4 w-4 text-white" />}
-          label="Twitter / X"
-          sublabel="Connect your X account"
-        />
-        <LoginMethodButton
-          onClick={onLogin}
-          icon={<GoogleIcon className="h-4 w-4" />}
-          label="Google / Gmail"
-          sublabel="Continue with your Google account"
-        />
-        <LoginMethodButton
-          onClick={onLogin}
-          icon={<Mail className="h-4 w-4 text-white/70" />}
-          label="Email"
-          sublabel="Magic link — no password"
-        />
-      </div>
-
-      {/* Crypto wallet logins */}
-      <div className="space-y-1.5">
-        <p className="text-[8px] uppercase tracking-widest text-white/25 font-mono px-1">Crypto wallet</p>
-        <LoginMethodButton
-          onClick={onLogin}
-          icon={<RainbowIcon className="h-5 w-5" />}
-          label="Rainbow Wallet"
-          sublabel="Mobile-first multichain wallet"
-        />
-        <LoginMethodButton
-          onClick={onLogin}
-          icon={<RabbyIcon className="h-4 w-4" />}
-          label="Rabby Wallet"
-          sublabel="Security-focused EVM wallet"
-        />
-        <LoginMethodButton
-          onClick={onLogin}
-          icon={<WalletConnectIcon className="h-4 w-4" />}
-          label="WalletConnect"
-          sublabel="Any wallet via QR code"
-        />
-      </div>
-
-      {/* Social key recovery hint */}
-      <div className="rounded-sm border border-[#F7931A]/12 bg-[#F7931A]/4 px-3 py-2.5 space-y-1.5">
-        <div className="flex items-center gap-1.5">
-          <KeyRound className="h-3 w-3 text-[#F7931A]/60 shrink-0" />
-          <p className="text-[9px] font-bold uppercase tracking-widest text-[#F7931A]/70">
-            Returning? Recover your wallet
-          </p>
+      {emailStep === 'idle' && (<>
+        {/* Social logins */}
+        <div className="space-y-1.5">
+          <p className="text-[8px] uppercase tracking-widest text-white/25 font-mono px-1">Social login</p>
+          <LoginMethodButton onClick={() => handleOAuth('twitter')} icon={<XIcon className="h-4 w-4 text-white" />} label="Twitter / X" sublabel="Connect your X account" />
+          <LoginMethodButton onClick={() => handleOAuth('google')} icon={<GoogleIcon className="h-4 w-4" />} label="Google / Gmail" sublabel="Continue with your Google account" />
+          <LoginMethodButton onClick={() => setEmailStep('email')} icon={<Mail className="h-4 w-4 text-white/70" />} label="Email" sublabel="One-time code — no password" />
         </div>
-        <p className="text-[8px] font-mono text-white/30 leading-relaxed">
-          Log in with the same social account you used before — Privy automatically restores your embedded wallet.
-          Once signed in, use <span className="text-[#F7931A]/60">Social Key Recovery</span> to export your private key for full self-custody.
-        </p>
-        <button
-          onClick={onLogin}
-          className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-sm border border-[#F7931A]/20 hover:border-[#F7931A]/40 bg-[#F7931A]/8 hover:bg-[#F7931A]/15 transition-all"
-        >
-          <RefreshCw className="h-3 w-3 text-[#F7931A]/70" />
-          <span className="text-[9px] font-mono uppercase tracking-widest text-[#F7931A]/70">Restore wallet access</span>
-        </button>
-      </div>
+
+        {/* Crypto wallet logins */}
+        <div className="space-y-1.5">
+          <p className="text-[8px] uppercase tracking-widest text-white/25 font-mono px-1">Crypto wallet</p>
+          <LoginMethodButton onClick={() => connectWallet()} icon={<RainbowIcon className="h-5 w-5" />} label="Rainbow Wallet" sublabel="Mobile-first multichain wallet" />
+          <LoginMethodButton onClick={() => connectWallet()} icon={<RabbyIcon className="h-4 w-4" />} label="Rabby Wallet" sublabel="Security-focused EVM wallet" />
+          <LoginMethodButton onClick={() => connectWallet()} icon={<WalletConnectIcon className="h-4 w-4" />} label="WalletConnect" sublabel="Any wallet via QR code" />
+        </div>
+
+        {/* Recovery hint */}
+        <div className="rounded-sm border border-[#F7931A]/12 bg-[#F7931A]/4 px-3 py-2.5 space-y-1.5">
+          <div className="flex items-center gap-1.5">
+            <KeyRound className="h-3 w-3 text-[#F7931A]/60 shrink-0" />
+            <p className="text-[9px] font-bold uppercase tracking-widest text-[#F7931A]/70">Returning? Recover your wallet</p>
+          </div>
+          <p className="text-[8px] font-mono text-white/30 leading-relaxed">
+            Sign in with the same social account — Privy automatically restores your embedded wallet.
+          </p>
+          <button onClick={() => handleOAuth('google')} className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-sm border border-[#F7931A]/20 hover:border-[#F7931A]/40 bg-[#F7931A]/8 hover:bg-[#F7931A]/15 transition-all">
+            <RefreshCw className="h-3 w-3 text-[#F7931A]/70" />
+            <span className="text-[9px] font-mono uppercase tracking-widest text-[#F7931A]/70">Restore wallet access</span>
+          </button>
+        </div>
+      </>)}
+
+      {emailStep === 'email' && (
+        <div className="space-y-2">
+          <button onClick={() => { setEmailStep('idle'); setErr(''); }} className="flex items-center gap-1 text-[9px] text-white/40 hover:text-white/70 font-mono">
+            <ArrowLeft className="h-3 w-3" /> Back
+          </button>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-white/60">Enter your email</p>
+          <input
+            value={emailVal} onChange={e => setEmailVal(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && handleSend()}
+            placeholder="you@example.com" autoFocus
+            className="w-full bg-white/5 border border-white/15 rounded-sm px-3 py-2 text-[11px] font-mono text-white placeholder:text-white/20 focus:outline-none focus:border-[#F7931A]/50"
+          />
+          {err && <p className="text-[9px] text-red-400 font-mono">{err}</p>}
+          <button onClick={handleSend} disabled={busy || !emailVal.trim()} className="w-full flex items-center justify-center gap-2 py-2 rounded-sm bg-[#F7931A]/80 hover:bg-[#F7931A] disabled:opacity-40 transition-all text-[10px] font-bold uppercase tracking-widest text-white">
+            {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'Send Code →'}
+          </button>
+        </div>
+      )}
+
+      {emailStep === 'code' && (
+        <div className="space-y-2">
+          <button onClick={() => { setEmailStep('email'); setCodeVal(''); setErr(''); }} className="flex items-center gap-1 text-[9px] text-white/40 hover:text-white/70 font-mono">
+            <ArrowLeft className="h-3 w-3" /> Back
+          </button>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-white/60">Check your inbox</p>
+          <p className="text-[9px] font-mono text-white/35">Code sent to <span className="text-[#F7931A]/70">{emailVal}</span></p>
+          <input
+            value={codeVal} onChange={e => setCodeVal(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && handleVerify()}
+            placeholder="Enter code" maxLength={8} autoFocus
+            className="w-full bg-white/5 border border-white/15 rounded-sm px-3 py-2 text-[13px] font-mono text-white placeholder:text-white/20 focus:outline-none focus:border-[#35D07F]/50 tracking-[0.4em] text-center"
+          />
+          {err && <p className="text-[9px] text-red-400 font-mono">{err}</p>}
+          <button onClick={handleVerify} disabled={busy || !codeVal.trim()} className="w-full flex items-center justify-center gap-2 py-2 rounded-sm bg-[#35D07F]/70 hover:bg-[#35D07F] disabled:opacity-40 transition-all text-[10px] font-bold uppercase tracking-widest text-white">
+            {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'Verify & Sign In →'}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
-  const { login, logout, authenticated } = usePrivy();
+  const { logout, authenticated } = usePrivy();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [communityOpen, setCommunityOpen] = useState(false);
+  const [mobileLoginOpen, setMobileLoginOpen] = useState(false);
+  const mobileLoginRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!mobileLoginOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (mobileLoginRef.current && !mobileLoginRef.current.contains(e.target as Node)) setMobileLoginOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [mobileLoginOpen]);
 
   const { selectedCommunity, setSelectedCommunity, isSocialUser } = useApp();
 
@@ -812,7 +916,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         </nav>
 
         <div className="mt-auto">
-          {authenticated ? <UserPanel onLogout={logout} /> : <SignInPanel onLogin={login} />}
+          {authenticated ? <UserPanel onLogout={logout} /> : <SignInPanel />}
           <PoweredBy />
         </div>
       </div>
@@ -852,14 +956,18 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <VeritasLogo className="h-10 w-auto object-contain" />
           <div className="flex items-center gap-2">
             {!authenticated && (
-              <Button
-                size="sm"
-                className="text-[10px] h-8 px-3 uppercase tracking-widest font-bold"
-                style={{ background: "linear-gradient(135deg, #2D5A3A, #F7931A)" }}
-                onClick={() => login()}
-              >
-                Log In
-              </Button>
+              <div className="relative" ref={mobileLoginRef}>
+                <Button
+                  size="sm"
+                  className="text-[10px] h-8 px-3 uppercase tracking-widest font-bold"
+                  style={{ background: "linear-gradient(135deg, #2D5A3A, #F7931A)" }}
+                  onClick={() => setMobileLoginOpen(o => !o)}
+                >
+                  Log In
+                  <ChevronDown className={`ml-1 h-3 w-3 transition-transform ${mobileLoginOpen ? "rotate-180" : ""}`} />
+                </Button>
+                {mobileLoginOpen && <LoginDropdown onClose={() => setMobileLoginOpen(false)} />}
+              </div>
             )}
             <Button
               variant="ghost"
