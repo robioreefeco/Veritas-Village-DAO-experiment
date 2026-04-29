@@ -56,6 +56,11 @@ export default defineConfig({
     alias: {
       "@": path.resolve(import.meta.dirname, "src"),
       "@assets": path.resolve(import.meta.dirname, "..", "..", "attached_assets"),
+      // Force all packages (including Privy) to use the same React instance
+      "react": path.resolve(import.meta.dirname, "node_modules/react"),
+      "react-dom": path.resolve(import.meta.dirname, "node_modules/react-dom"),
+      "react-dom/client": path.resolve(import.meta.dirname, "node_modules/react-dom/client"),
+      "react/jsx-runtime": path.resolve(import.meta.dirname, "node_modules/react/jsx-runtime"),
     },
     dedupe: ["react", "react-dom"],
   },

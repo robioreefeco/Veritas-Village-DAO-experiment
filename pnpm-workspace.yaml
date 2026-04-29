@@ -74,6 +74,9 @@ onlyBuiltDependencies:
   - unrs-resolver
 
 overrides:
+  # Force a single React instance — prevents "Invalid hook call" with Privy v3 on React 19
+  react: "19.1.0"
+  react-dom: "19.1.0"
   # replit uses linux-x64 only, we can exclude all other platforms
   "esbuild>@esbuild/darwin-arm64": "-"
   "esbuild>@esbuild/darwin-x64": "-"
